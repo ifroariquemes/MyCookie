@@ -1,6 +1,13 @@
 <?php
 
-require_once ('vendor/autoload.php');
+        const Autoload = 'vendor/autoload.php';
+
+if (!file_exists(Autoload)) {
+    include ('src/view/build/composer-run.php');
+    exit;
+}
+
+require_once (Autoload);
 
 session_start();
 
