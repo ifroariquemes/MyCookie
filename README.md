@@ -1,8 +1,8 @@
-h1. MyCookie 0.3b
+# MyCookie 0.3b
 
 MyCookie is a framework made for PHP that works with highly modularized structures and abstraction level. It has some interesting features to developers looking for a fast programming without despise the application performance.
 
-h2. About the structure
+## About the structure
 
 Build over a legible sintax for newbie eyes, highly learneable, PHP programming was never easier as with MyCookie. 
 
@@ -12,13 +12,13 @@ Simple, isn't? All this and much more without losing performance.
 
 What differs it from others frameworks is the building procedure, as happens in desktop languagens (e.g. Java, .Net, Delphi). It is NOT ABOUT verifying your project lexically or semantically, is something like happens at .Net (ASPX) building: THE BUNDLE.
 
-h2. The building procedure
+## The building procedure
 
 The building procedure captures all JavaScript and CSS in source and generate an uglyfied file, one for each respectively, so you just need to reference the bundle on your HTML and everything will load faster. 
 
 It does more 2 activities (a) cache cleaning, so every cached page will be deleted every new building, and (b) object-relational mapping, so model classes will be mapped into database tables.
 
-h3. Object-relational mapping
+### Object-relational mapping
 
 MyCookie uses Doctrine (http://doctrine-project.org/) as ORM. This tools implements annotations as in Hibernate, so when the building procedure is running, a database schema will be generated as to create as to update the existing database. 
 
@@ -48,7 +48,7 @@ class User extends Object {
 ?>
 ```
 
-h2. Modularity
+## Modularity
 
 The modularity of MyCookie is also a very strong point. The whole architecture was developed with this purpose: that the URL http://mywebsite.com/news/list could both load an entire website page or be just a single news list as return for a HTTP request sent by AJAX. The possibilities are uncountable.
 
@@ -99,7 +99,7 @@ src/
             edit.php
             add.php
 
-h2. Some really good (maybe useless) functions
+## Some really good (maybe useless) functions
 
 As not every CMS is made with just a good core, MyCookie stands out for the many awesome features that it offers containing a huge auxiliar classes library, to calculate the distance between two points in a cartesian plane even search a value in a vector of n-dimensions.
 
@@ -110,16 +110,16 @@ Some features you will find at MyCookie:
 * HTML generator
 * ORM (in this version with all databases, thanks to Doctrine!)
 
-h2. Collaborate!
+## Collaborate!
 
 The future plans for MyCookie are widely ambitious and yet there is lot of ideas that need to be designed to reach better results. Therefore, we need your collaboration to boost this project to obtain a stable version as fast as possible. For this, clone this master branch, see the source, read the documentation and source comments, understand its functioning, ask if you have doubts and GIVE YOUR SUGGESTIONS.
 
 Already we thank you too much for you dedication with open-source!
 
-h2. Contact
+## Contact
 
-*Natanael Simões*
+**Natanael Simões**
 
-* *Email:* natanael.simoes@ifro.edu.br
-* *Twitter:* @natanaelsimoes
-* *Facebook:* http://www.facebook.com/natanaelsimoes
+> **Email:** natanael.simoes@ifro.edu.br
+> **Twitter:** @natanaelsimoes
+> **Facebook:** http://www.facebook.com/natanaelsimoes
