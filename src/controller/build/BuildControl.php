@@ -29,12 +29,12 @@ class BuildControl {
             fwrite($fp, "   baseUrl: \"../\",\n");
             fwrite($fp, "   paths: {\n");
             if ($myCookieConfiguration->build->use_jquery) {
-                fwrite($fp, "       jquery: \"../vendor/sheillendra/metro-bootstrap/docs/bootstrap\",\n");
+                fwrite($fp, "       jquery: \"../vendor/sheillendra/metro-bootstrap/docs/jquery-1.8.0\",\n");
                 array_push($jsFilesId, 'jquery');
             }
             if ($myCookieConfiguration->build->use_bootstrap) {
                 if ($myCookieConfiguration->build->use_metro) {
-                    fwrite($fp, "       bootstrap: \"../vendor/components/jquery/jquery\",\n");
+                    fwrite($fp, "       bootstrap: \"../vendor/sheillendra/metro-bootstrap/docs/bootstrap\",\n");
                     fwrite($fp, "       application: \"../vendor/sheillendra/metro-bootstrap/docs/application\",\n");
                     array_push($jsFilesId, 'bootstrap', 'application');
                 } else {
@@ -128,16 +128,30 @@ class BuildControl {
     }
 
     public function BuildJS() {
+        $check = 0;
         if ($this->CheckPassword()) {
-            system(sprintf("node %s -o %s", BuildControl::RJSFile, BuildControl::BuildJSFile));
+            system(sprintf("node %s -o %s", BuildControl::RJSFile, BuildControl::BuildJSFile), $check);
+            if ($check !== 0) {
+                system(sprintf("nodejs %s -o %s", BuildControl::RJSFile, BuildControl::BuildJSFile), $check);
+                if ($check !== 0) {
+                    include('src/view/build/node-run.php');
+                }
+            }
         } else {
             echo 'The password does\'t match';
         }
     }
 
     public function BuildCSS() {
+        $check = 0;
         if ($this->CheckPassword()) {
-            system(sprintf("node %s -o %s", BuildControl::RJSFile, BuildControl::BuildCSSFile));
+            system(sprintf("node %s -o %s", BuildControl::RJSFile, BuildControl::BuildCSSFile), $check);
+            if ($check !== 0) {
+                system(sprintf("nodejs %s -o %s", BuildControl::RJSFile, BuildControl::BuildCSSFile), $check);
+                if ($check !== 0) {
+                    include('src/view/build/node-run.php');
+                }
+            }
         } else {
             echo 'The password does\'t match';
         }
@@ -175,7 +189,7 @@ class BuildControl {
         return filter_input(INPUT_POST, 'password') === md5($myCookieConfiguration->build->password);
     }
 
-    public function CheckPasswordRet() {        
+    public function CheckPasswordRet() {
         var_export($this->CheckPassword());
     }
 

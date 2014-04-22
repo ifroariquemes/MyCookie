@@ -26,10 +26,12 @@
                     </p>
                     <p class="step3 hidden">3 - Building JS bundle...
                         <img class="step3" src="src/assets/images/loading1.gif" />
+                        <i class="step3 fa fa-ambulance hidden"></i>
                         <i class="step3 fa fa-check hidden"></i>
                     </p>
                     <p class="step4 hidden">4 - Building CSS bundle...
                         <img class="step4" src="src/assets/images/loading1.gif" />
+                        <i class="step4 fa fa-ambulance hidden"></i>
                         <i class="step4 fa fa-check hidden"></i>
                     <p>
                     <p class="step5 hidden">5 - Updating database schema...
@@ -57,7 +59,7 @@
             </div>
         </div>
         <script type="text/javascript" src="vendor/sheillendra/metro-bootstrap/docs/jquery-1.8.0.js"></script>
-        <script type="text/javascript" src="vendor/jeffmott/criptojs/rollups/md5.js"></script>
+        <script type="text/javascript" src="components/jeffmott/criptojs/rollups/md5.js"></script>
         <script type="text/javascript">
                             var password = "";
 
@@ -67,7 +69,7 @@
                                     type: 'POST',
                                     url: 'build/CheckPasswordRet?async',
                                     data: "password=" + password,
-                                    success: function(ret) {                                        
+                                    success: function(ret) {
                                         if (ret === 'false')
                                             alert('The password doesn\'t match.');
                                         else {
@@ -114,8 +116,13 @@
                                     success: function(ret) {
                                         $('.jsoutput').removeClass('hidden').children('pre').html(ret);
                                         $('img.step3').addClass('hidden');
-                                        $('i.step3').removeClass('hidden');
                                         $('p.step4').removeClass('hidden');
+                                        if (ret.substring(0, 3) === 'ERR') {
+                                            $('p.step3').addClass('text-danger');
+                                            $('i.step3.fa-ambulance').removeClass('hidden');
+                                        }
+                                        else
+                                            $('i.step3.fa-check').removeClass('hidden');
                                         Step4();
                                     }
                                 });
@@ -129,8 +136,13 @@
                                     success: function(ret) {
                                         $('.cssoutput').removeClass('hidden').children('pre').html(ret);
                                         $('img.step4').addClass('hidden');
-                                        $('i.step4').removeClass('hidden');
                                         $('p.step5').removeClass('hidden');
+                                        if (ret.substring(0, 3) === 'ERR') {
+                                            $('p.step4').addClass('text-danger');
+                                            $('i.step4.fa-ambulance').removeClass('hidden');                                            
+                                        }                                        
+                                        else
+                                            $('i.step4.fa-check').removeClass('hidden');
                                         Step5();
                                     }
                                 });
@@ -145,8 +157,10 @@
                                         $('.ormoutput').removeClass('hidden').children('pre').html(ret);
                                         $('img.step5').addClass('hidden');
                                         $('p.done').removeClass('hidden');
-                                        if (ret.substring(0, 8) === 'SQLSTATE')
+                                        if (ret.substring(0, 8) === 'SQLSTATE') {
+                                            $('p.step5').addClass('text-danger');
                                             $('i.step5.fa-ambulance').removeClass('hidden');
+                                        }
                                         else {
                                             $('i.step5.fa-check').removeClass('hidden');
                                             $('button.step5').removeClass('hidden');
