@@ -24,7 +24,7 @@ MyCookie uses Doctrine (http://doctrine-project.org/) as ORM. This tools impleme
 
 An model class sample:
 
-<code>
+```php
 <?php
 
 namespace model\user;
@@ -46,7 +46,7 @@ class User extends Object {
     /** Gets and Sets and stuff *//
 }
 ?>
-</code>
+```
 
 h2. Modularity
 
