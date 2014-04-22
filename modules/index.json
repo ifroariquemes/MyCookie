@@ -1,0 +1,23 @@
+{
+    "name": "Index",
+    "description": "",
+    "authors": [
+        {
+            "name": "Natanael Simoes",
+            "email": "natanael.simoes@ifro.edu.br"
+        }
+    ],
+    "version": "1.0",
+    "creationDate": "2012-06-15",
+    "lastReleaseDate": "2014-04-20",
+    "home": {
+        "control": "IndexControl",
+        "action": "ShowPage"
+    },
+    "controllers": [
+        {
+            "name": "IndexControl",
+            "submodule": ""
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+# Enable PHP 5.4
+AddType application/x-httpd-php54 .php
+# BEGIN MyCookie
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{SCRIPT_FILENAME} !-f
+RewriteCond %{SCRIPT_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1
+</IfModule>
+# END MyCookie

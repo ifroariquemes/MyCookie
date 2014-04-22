@@ -1,0 +1,20 @@
+<?php
+
+namespace lib;
+
+abstract class MyCookieRouter {
+
+  public function Route() {
+    global $_MyCookie;    
+    global $_Async;
+    $_Async = strpos(filter_input(INPUT_SERVER, 'REQUEST_URI'), 'async') > 0;
+    if ($_MyCookie->getGateway() == $_MyCookie->getModule())
+      $this->ShowPage();
+    else
+      $this->ShowPage($_MyCookie->requestAction($_MyCookie->getControlClass(), $_MyCookie->getAction()));
+  }
+
+  public abstract function ShowPage($view = null);
+}
+
+?>

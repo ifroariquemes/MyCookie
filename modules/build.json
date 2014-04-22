@@ -1,0 +1,23 @@
+{
+    "name": "Build",
+    "description": "",
+    "authors": [
+        {
+            "name": "Natanael Simoes",
+            "email": "natanael.simoes@ifro.edu.br"
+        }
+    ],
+    "version": "1.0",
+    "creationDate": "2014-04-21",
+    "lastReleaseDate": "2014-04-21",
+    "home": {
+        "control": "BuildControl",
+        "action": "Build"
+    },
+    "controllers": [
+        {
+            "name": "BuildControl",
+            "submodule": ""
+        }
+    ]
+}
