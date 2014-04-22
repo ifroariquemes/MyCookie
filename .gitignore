@@ -1,4 +1,5 @@
 nbproject/
 vendor/
 /cache/
-/components/bundle*
+/components/bundle.css
+/components/bundle.js
