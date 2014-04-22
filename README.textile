@@ -2,37 +2,124 @@ h1. MyCookie 0.3b
 
 MyCookie is a framework made for PHP that works with highly modularized structures and abstraction level. It has some interesting features to developers looking for a fast programming without despise the application performance.
 
-h2. Um pouco sobre a estrutura
+h2. About the structure
 
-Construído sobre uma sintaxe legível aos olhos mais leigos, com curva de aprendizagem acentuada, programar PHP nunca foi tão fácil como é com MyCookie. 
+Build over a legible sintax for newbie eyes, highly learneable, PHP programming was never easier as with MyCookie. 
 
-Quer um exemplo? Todos os arquivos criados no MyCookie pertencem, necessariamente, a um namespace. Quando quiser usar uma classe, não interessa onde ela esteja fisicamente no seu computador/servidor, não há necessidade das funções <code>require()</code> ou <code>include()</code> apontando o caminho, basta utilizar a sintaxe <code>use Namespace/Classe</code> (nativa no PHP desde a versão 5.3) informando ao PHP que você fará uso da classe e sair instanciando normalmente, pois o próprio MyCookie se incube de carregar o arquivo para você. 
+Want some explanation? Every file created at MyCookie belongs to a namespace. Because it uses PSR-0 standard (http://petermoulding.com/php/psr) there is no need of <code>require()</code> or <code>include()</code> pointing the way every-holy-time. Just use something like <code>user model\user\MyUser</code> and have fun! Better then that, if you have any helper/function/class made for another framework, you can use it here (since it uses PSR-0 standard too).
 
-Simples, não? Tudo isso e muito mais sem perder desempenho.
+Simple, isn't? All this and much more without losing performance.
 
-O que o difere de muitas outras frameworks é que nesta não há necessidade de ficar rodando infinitamente scripts para realizar alterações na estrutura do seu aplicativo. Todo módulo, inclusive o próprio MyCookie, tem um arquivo de configuração chamado config.xml. Nele todo o módulo é identificado inclusive as classes e relacionamentos entre classes, além de configurações dos atributos para que, se necessário, o MyCookie possa criar campos, tabelas e relacionamentos entre tabelas. Quer adicionar um novo atributo numa classe, declare-o, configure-o e salve as alterações. Pronto, o poderoso ORM de MyCookie se encarrega de cuidar do banco pra você.
+What differs it from others frameworks is the building procedure, as happens in desktop languagens (e.g. Java, .Net, Delphi). It is NOT ABOUT verifying your project lexically or semantically, is something like happens at .Net (ASPX) building: THE BUNDLE.
 
-A modularização de MyCookie também é um ponto muito forte. Toda a arquitetura foi desenvolvida com este propósito: que a URL http://meusite.com/noticias/listar/ possa tanto carregar uma página inteira do site quanto ser apenas uma simples lista de notícias como resposta de uma requisição HTTP enviada por AJAX. Em poucas palavras seria isto, porém as possibilidades são infinitas.
+h2. The building procedure
 
-Mas como nem todo bom CMS é feito apenas de um bom núcleo principal, MyCookie igualmente se destaca pela quantidade de recursos incríveis que pode oferecer contendo uma vasta biblioteca de classes auxiliares de todo tipo, de calcular a distância de dois pontos no plano cartesiano até fazer buscas em coleções de dados de n-dimensões. 
+The building procedure captures all JavaScript and CSS in source and generate an uglyfied file, one for each respectively, so you just need to reference the bundle on your HTML and everything will load faster. 
 
-h2. Algumas funções
+It does more 2 activities (a) cache cleaning, so every cached page will be deleted every new building, and (b) object-relational mapping, so model classes will be mapped into database tables.
 
-* Cálculos matemáticos
-* Manipulação avançada de datas, imagens, textos e vetores
-* Gerador de HTML
-* ORM (nesta versão apenas com MySQL)
+h3. Object-relational mapping
 
-h2. Colabore!
+MyCookie uses Doctrine (http://doctrine-project.org/) as ORM. This tools implements annotations as in Hibernate, so when the building procedure is running, a database schema will be generated as to create as to update the existing database. 
 
-Os planos para o futuro do MyCookie são amplamente ambiciosos e ainda há uma série de ideias que precisam ser concebidas para chegar aos melhores resultados. Por isso, preciso da sua colaboração para poder impulsionar o projeto para chegarmos a uma versão estável o mais rápido possível. Para isto, clone a branch “dev” (https://github.com/natanaelsimoes/MyCookie/tree/dev), veja os fontes, entenda o funcionamento, questione se tiver dúvidas e dê suas sugestões.
+An model class sample:
 
-Desde já agradeço muito sua dedicação pelo open-source!
+<code>
+<?php
 
-h2. Contato
+namespace model\user;
+
+use lib\util\Object;
+
+/**
+ * @Entity
+ * @Table(name="user")
+ */
+class User extends Object {
+
+    /** @Id @Column(type="integer") @GeneratedValue */
+    private $id;
+
+    /** @Column(type="string") */
+    private $name;
+
+    /** Gets and Sets and stuff *//
+}
+?>
+</code>
+
+h2. Modularity
+
+The modularity of MyCookie is also a very strong point. The whole architecture was developed with this purpose: that the URL http://mywebsite.com/news/list could both load an entire website page or be just a single news list as return for a HTTP request sent by AJAX. The possibilities are uncountable.
+
+Furthermore, the folder structure + PSR-0 also provides modularity, so you can easily copy-paste any MyCookie module from web or even migrate to this framework. 
+
+If we had two modules called 'news' and 'user', them folder structure could be like this:
+
+src/
+    assets/
+        css/
+            news/
+                cssfiles.css
+        icon/
+            news/
+                news.svg
+            user/
+                user.svg
+        images/
+            news/
+                images.jpg
+        js/
+            news/
+                jsfiles.js
+                thatjs.js
+            user/
+                jsfiles.js
+    controller/
+        news/
+            NewsControl.php
+        user/
+            UserControl.php
+    model/
+        news/
+            News.php
+        user/
+            userType/   <----- submodule of user
+                UserType.php
+            User.php
+    view/
+        news/
+            list.php
+            edit.php
+        user/
+            userType/   <----- submodule of user
+                list.php
+                delete.php
+            list.php
+            edit.php
+            add.php
+
+h2. Some really good (maybe useless) functions
+
+As not every CMS is made with just a good core, MyCookie stands out for the many awesome features that it offers containing a huge auxiliar classes library, to calculate the distance between two points in a cartesian plane even search a value in a vector of n-dimensions.
+
+Some features you will find at MyCookie:
+
+* Arithmetic
+* Date, image, text and vector handling
+* HTML generator
+* ORM (in this version with all databases, thanks to Doctrine!)
+
+h2. Collaborate!
+
+The future plans for MyCookie are widely ambitious and yet there is lot of ideas that need to be designed to reach better results. Therefore, we need your collaboration to boost this project to obtain a stable version as fast as possible. For this, clone this master branch, see the source, read the documentation and source comments, understand its functioning, ask if you have doubts and GIVE YOUR SUGGESTIONS.
+
+Already we thank you too much for you dedication with open-source!
+
+h2. Contact
 
 *Natanael Simões*
 
-* *Email:* natanaelsimoes@gmail.com
+* *Email:* natanael.simoes@ifro.edu.br
 * *Twitter:* @natanaelsimoes
 * *Facebook:* http://www.facebook.com/natanaelsimoes
