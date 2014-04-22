@@ -1,3 +1,4 @@
 nbproject/
 vendor/
 /cache/
+/components/bundle*
