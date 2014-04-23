@@ -6,7 +6,7 @@ MyCookie is a framework made for PHP that works with highly modularized structur
 
 Build over a legible sintax for newbie eyes, highly learneable, PHP programming was never easier as with MyCookie. 
 
-Want some explanation? Every file created at MyCookie belongs to a namespace. Because it uses PSR-0 standard (http://petermoulding.com/php/psr) there is no need of <code>require()</code> or <code>include()</code> pointing the way every-holy-time. Just use something like <code>user model\user\MyUser</code> and have fun! Better then that, if you have any helper/function/class made for another framework, you can use it here (since it uses PSR-0 standard too).
+Want some explanation? Every file created at MyCookie belongs to a namespace. Because it uses [PSR-0 standard](http://petermoulding.com/php/psr) there is no need of <code>require()</code> or <code>include()</code> pointing the way every-holy-time. Just use something like <code>use model\user\MyUser</code> and have fun! Better then that, if you have any helper/function/class made for another framework, you can use it here (since it uses PSR-0 standard too).
 
 Simple, isn't? All this and much more without losing performance.
 
@@ -20,7 +20,7 @@ It does more 2 activities (a) cache cleaning, so every cached page will be delet
 
 ### Object-relational mapping
 
-MyCookie uses Doctrine (http://doctrine-project.org/) as ORM. This tools implements annotations as in Hibernate, so when the building procedure is running, a database schema will be generated as to create as to update the existing database. 
+MyCookie uses [Doctrine](http://doctrine-project.org/) as ORM. This tools implements annotations as in Hibernate, so when the building procedure is running, a database schema will be generated as to create as to update the existing database. 
 
 An model class sample:
 
@@ -45,6 +45,7 @@ class User extends Object {
 
     /** Gets and Sets and stuff *//
 }
+
 ?>
 ```
 
@@ -56,8 +57,8 @@ Furthermore, the folder structure + PSR-0 also provides modularity, so you can e
 
 If we had two modules called 'news' and 'user', them folder structure could be like this:
 
-src/
-    assets/
+- src/
+    - assets/
         css/
             news/
                 cssfiles.css
@@ -120,6 +121,6 @@ Already we thank you too much for you dedication with open-source!
 
 **Natanael Simões**
 
-> **Email:** natanael.simoes@ifro.edu.br
-> **Twitter:** @natanaelsimoes
-> **Facebook:** http://www.facebook.com/natanaelsimoes
+- **Email:** natanael.simoes@ifro.edu.br
+- **Twitter:** @natanaelsimoes
+- **Facebook:** http://www.facebook.com/natanaelsimoes
