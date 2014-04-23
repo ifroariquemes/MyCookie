@@ -55,51 +55,6 @@ The modularity of MyCookie is also a very strong point. The whole architecture w
 
 Furthermore, the folder structure + PSR-0 also provides modularity, so you can easily copy-paste any MyCookie module from web or even migrate to this framework. 
 
-If we had two modules called 'news' and 'user', them folder structure could be like this:
-
-- src/
-    - assets/
-        - css/
-            - news/
-                - cssfiles.css
-        - icon/
-            - news/
-                - news.svg
-            - user/
-                - user.svg
-        - images/
-            - news/
-                - images.jpg
-        - js/
-            - news/
-                - jsfiles.js
-                - thatjs.js
-            - user/
-                - jsfiles.js
-    - controller/
-        - news/
-            - NewsControl.php
-        - user/
-            - UserControl.php
-    - model/
-        - news/
-            - News.php
-        - user/
-            - userType/   <----- submodule of user
-                - UserType.php
-            - User.php
-    - view/
-        - news/
-            - list.php
-            - edit.php
-        - user/ 
-            - userType/   <----- submodule of user
-                - list.php
-                - delete.php
-            - list.php
-            - edit.php
-            - add.php
-
 ## Some really good (maybe useless) functions
 
 As not every CMS is made with just a good core, MyCookie stands out for the many awesome features that it offers containing a huge auxiliar classes library, to calculate the distance between two points in a cartesian plane even search a value in a vector of n-dimensions.
