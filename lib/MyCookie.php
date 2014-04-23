@@ -239,7 +239,7 @@ class MyCookie {
     }
 
     public function getMyCookieConfiguration() {
-        return json_decode(file_get_contents('composer.json'));
+        return json_decode(file_get_contents('config.json'));
     }
 
     /**

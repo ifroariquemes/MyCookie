@@ -14,9 +14,14 @@ $isDevMode = true;
  */
 global $_EntityManager;
 
+/* @var $_MyCookie MyCookie */
+global $_MyCookie;
+
+$myCookieConfiguration = $_MyCookie->getMyCookieConfiguration();
+
 $_EntityManager = EntityManager::create(array(
-            'driver' => 'pdo_mysql',
-            'user' => 'root',
-            'password' => '',
-            'dbname' => 'foo', 
+            'driver' => $myCookieConfiguration->database->driver,
+            'user' => $myCookieConfiguration->database->user,
+            'password' => $myCookieConfiguration->database->password,
+            'dbname' => $myCookieConfiguration->database->dbname,
                 ), Setup::createAnnotationMetadataConfiguration(array(dirname(__DIR__) . "/src/model/"), $isDevMode));

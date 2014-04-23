@@ -59,7 +59,7 @@
             </div>
         </div>
         <script type="text/javascript" src="vendor/sheillendra/metro-bootstrap/docs/jquery-1.8.0.js"></script>
-        <script type="text/javascript" src="components/jeffmott/criptojs/rollups/md5.js"></script>
+        <script type="text/javascript" src="components/jeffmott/criptojs/md5.js"></script>
         <script type="text/javascript">
                             var password = "";
 
