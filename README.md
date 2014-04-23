@@ -51,7 +51,7 @@ class User extends Object {
 
 ## Modularity
 
-The modularity of MyCookie is also a very strong point. The whole architecture was developed with this purpose: that the URL http://mywebsite.com/news/list could both load an entire website page or be just a single news list as return for a HTTP request sent by AJAX. The possibilities are uncountable.
+The modularity of MyCookie is also a very strong point. The whole architecture was developed with this purpose: that the URL `http://mywebsite.com/news/list` could both load an entire website page or be just a single news list as return for a HTTP request sent by AJAX. The possibilities are uncountable.
 
 Furthermore, the folder structure + PSR-0 also provides modularity, so you can easily copy-paste any MyCookie module from web or even migrate to this framework. 
 
@@ -59,46 +59,46 @@ If we had two modules called 'news' and 'user', them folder structure could be l
 
 - src/
     - assets/
-        css/
-            news/
-                cssfiles.css
-        icon/
-            news/
-                news.svg
-            user/
-                user.svg
-        images/
-            news/
-                images.jpg
-        js/
-            news/
-                jsfiles.js
-                thatjs.js
-            user/
-                jsfiles.js
-    controller/
-        news/
-            NewsControl.php
-        user/
-            UserControl.php
-    model/
-        news/
-            News.php
-        user/
-            userType/   <----- submodule of user
-                UserType.php
-            User.php
-    view/
-        news/
-            list.php
-            edit.php
-        user/
-            userType/   <----- submodule of user
-                list.php
-                delete.php
-            list.php
-            edit.php
-            add.php
+        - css/
+            - news/
+                - cssfiles.css
+        - icon/
+            - news/
+                - news.svg
+            - user/
+                - user.svg
+        - images/
+            - news/
+                - images.jpg
+        - js/
+            - news/
+                - jsfiles.js
+                - thatjs.js
+            - user/
+                - jsfiles.js
+    - controller/
+        - news/
+            - NewsControl.php
+        - user/
+            - UserControl.php
+    - model/
+        - news/
+            - News.php
+        - user/
+            - userType/   <----- submodule of user
+                - UserType.php
+            - User.php
+    - view/
+        - news/
+            - list.php
+            - edit.php
+        - user/ 
+            - userType/   <----- submodule of user
+                - list.php
+                - delete.php
+            - list.php
+            - edit.php
+            - add.php
 
 ## Some really good (maybe useless) functions
 
