@@ -77,5 +77,5 @@ Already we thank you too much for you dedication with open-source!
 **Natanael Simões**
 
 - **Email:** natanael.simoes@ifro.edu.br
-- **Twitter:** @natanaelsimoes
+- **Twitter:** [@natanaelsimoes](http://twitter.com/natanaelsimoes)
 - **Facebook:** http://www.facebook.com/natanaelsimoes
