@@ -17,10 +17,12 @@ global $_EntityManager;
 /* @var $_MyCookie MyCookie */
 global $_MyCookie;
 
+$_MyCookie = MyCookie::singleton();
+
 $myCookieConfiguration = $_MyCookie->getMyCookieConfiguration();
 
 $_EntityManager = EntityManager::create(array(
-            'driver' => $myCookieConfiguration->database->driver,
+            'driver' => "pdo_{$myCookieConfiguration->database->driver}",
             'user' => $myCookieConfiguration->database->user,
             'password' => $myCookieConfiguration->database->password,
             'dbname' => $myCookieConfiguration->database->dbname,
