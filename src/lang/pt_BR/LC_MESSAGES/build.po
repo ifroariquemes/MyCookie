@@ -1,0 +1,110 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-04-25 01:38-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/view/build/build.php:12
+msgid "Building application"
+msgstr "Contruindo aplicação"
+
+#: src/view/build/build.php:13
+msgid "Bundle all JS/CSS from application and update database schema"
+msgstr "Empacota todos os JS/CSS da aplicação e atualiza o esquema do banco de dados"
+
+#: src/view/build/build.php:14
+msgid "PS: it can take some time depending on files size"
+msgstr "Obs: isto pode levar algum tempo dependendo do tamanho dos arquivos"
+
+#: src/view/build/build.php:19
+msgid "Creating JS build file"
+msgstr "Criando arquivo de construção de JS"
+
+#: src/view/build/build.php:23
+msgid "Creating CSS build file"
+msgstr "Criando arquivo de construção de CSS"
+
+#: src/view/build/build.php:27
+msgid "Building JS bundle"
+msgstr "Criando pacote de JS"
+
+#: src/view/build/build.php:32
+msgid "Building CSS bundle"
+msgstr "Criando pacote de CSS"
+
+#: src/view/build/build.php:37
+msgid "Generating Portable Objects (for I18n)"
+msgstr "Gerando Objetos Portáteis (para I18n)"
+
+#: src/view/build/build.php:42
+msgid "Generating Machine Objects (for I18n)"
+msgstr "Gerando Objetos de Máquina (para I18n)"
+
+#: src/view/build/build.php:47
+msgid "Updating database schema"
+msgstr "Atualizando esquema do banco de dados"
+
+#: src/view/build/build.php:51
+msgid "Re-create database"
+msgstr "Recriar banco"
+
+#: src/view/build/build.php:53
+msgid "Done!"
+msgstr "Pronto!"
+
+#: src/view/build/build.php:57
+msgid "JS output"
+msgstr "Saída JS"
+
+#: src/view/build/build.php:61
+msgid "CSS output"
+msgstr "Saída CSS"
+
+#: src/view/build/build.php:65
+msgid "xGetText output"
+msgstr "Saída xGetText"
+
+#: src/view/build/build.php:69
+msgid "MsgFmt output"
+msgstr "Saída MsgFmt"
+
+#: src/view/build/build.php:73
+msgid "ORM output"
+msgstr "Saída ORM"
+
+#: src/view/build/build.php:85
+msgid "Enter the building password"
+msgstr "Entre com a senha de construção"
+
+#: src/view/build/build.php:92
+msgid "The password doesn't match"
+msgstr "A senha não confere"
+
+#: src/view/build/build.php:231
+msgid "Do you really want to recreate database? (It will erase EVERYTHING!)"
+msgstr "Você realmente deseja recriar o banco? (Isto irá apagar TUDO!)"
+
+#: src/view/build/build.php:243
+msgid "Your database was recreated."
+msgstr "Seu banco de dados foi recriado."
+
+#: src/view/build/composer-run.php:9
+msgid "Please, run"
+msgstr "Por favor, execute"
+
+#: src/view/build/composer-run.php:9
+msgid "from the root folder of this site to install required components"
+msgstr "da pasta principal do seu site para instalar os componentes requeridos"

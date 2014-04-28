@@ -9,26 +9,26 @@ global $_MyCookie;
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Painel Administrativo</title>
+        <title><?php _e('administrative panel', 'administrator') ?></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <?php $_MyCookie->CSSBundle() ?>        
     </head>
     <body>        
         <div class="container">                        
             <div class="col-lg-offset-4 col-lg-4">
-                <h2>painel administrativo</h2>
+                <h2><?php _e('administrative panel', 'administrator') ?></h2>
                 <form id="FrmLogin" method="post" class="jumbotron" action="<?php echo "{$_MyCookie->getSite()}user/login"; ?>">                    
                     <p><?php echo $_SESSION[MyCookie::MessageSession] ?></p>
                     <div class="input-group input-group-lg">                        
-                        <label for="login">Nome de usuário</label>
-                        <input type="text" class="form-control" placeholder="Login" name="login" id="login" required="required">                        
+                        <label for="login"><?php _e('Username', 'administrator') ?></label>
+                        <input type="text" class="form-control" placeholder="<?php _e('Login', 'administrator') ?>" name="login" id="login" required="required">                        
                     </div>
                     <div class="input-group input-group-lg">                        
-                        <label for="login">Senha</label>
-                        <input type="text" class="form-control" placeholder="Senha" name="password" id="password" required="required">
+                        <label for="login"><?php _e('Password', 'administrator') ?></label>
+                        <input type="password" class="form-control" placeholder="<?php _e('Password', 'administrator') ?>" name="password" id="password" required="required">
                     </div><br>
                     <p class="text-center">
-                        <button type="submit" class="btn btn-lg btn-primary">Entrar</button>
+                        <button type="submit" class="btn btn-lg btn-primary"><?php _e('Sign in', 'administrator') ?></button>
                     </p>
                 </form>                                
             </div>            

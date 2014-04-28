@@ -22,6 +22,7 @@ class Object {
      */
     public static function Select($alias) {        
         global $_EntityManager;
+        $_EntityManager = Database::EntityManager();
         return $_EntityManager->createQueryBuilder()->select($alias)->from(get_called_class(), $alias);
     }
     

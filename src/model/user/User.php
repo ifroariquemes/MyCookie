@@ -39,6 +39,10 @@ class User extends Object {
 
     /** @Column(type="string", length=1) */
     private $status;
+    
+    function __construct() {
+        $this->status = '1';                
+    }
 
     public function getId() {
         return $this->id;

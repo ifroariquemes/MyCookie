@@ -1,12 +1,13 @@
 <?php
 
-namespace lib;
+namespace lib\util;
 
-abstract class MyCookieRouter {
+abstract class Router {
 
   public function Route() {
     global $_MyCookie;    
     global $_Async;
+    I18n::singleton();
     $_Async = strpos(filter_input(INPUT_SERVER, 'REQUEST_URI'), 'async') > 0;
     if ($_MyCookie->getGateway() == $_MyCookie->getModule())
       $this->ShowPage();

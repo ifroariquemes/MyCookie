@@ -11,10 +11,12 @@ class BuildControl {
     const BuildCSSConfigFile = 'components/build/build-config.css';
     const SourceJS = 'src/assets/js';
     const SourceCSS = 'src/assets/css';
+    const SourceViews = 'src/view';
+    const SourceLang = 'src/lang';
 
     public function Build() {
         global $_Async;
-        $_Async = true;
+        $_Async = true;        
         include('src/view/build/build.php');
     }
 
@@ -169,7 +171,7 @@ class BuildControl {
                 echo $e->getMessage();
             }
         } else {
-            echo 'The password does\'t match';
+            echo _e("The password doesn't match", 'build');
         }
     }
 
@@ -191,6 +193,56 @@ class BuildControl {
 
     public function CheckPasswordRet() {
         var_export($this->CheckPassword());
+    }
+
+    /**
+     * If not generating, please check permissions
+     */
+    public function GeneratePortableObjects() {
+        if ($this->CheckPassword()) {
+            $fHandle = opendir(BuildControl::SourceViews);
+            while (($file = readdir($fHandle)) !== false) {
+                if ($file !== '.' && $file !== '..') {
+                    if (count(scandir(sprintf('%s/%s', BuildControl::SourceViews, $file))) > 2) {
+                        system(sprintf('xgettext -d %s -p %s/_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildControl::SourceLang, BuildControl::SourceViews, $file), $check);
+                        if ($check !== 0) {
+                            system(sprintf('gettext -d %s -p %s_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildControl::SourceLang, BuildControl::SourceViews, $file), $check);
+                            if ($check !== 0) {
+                                include('src/build/view/xgettext-run.php');
+                                return;
+                            }
+                        }
+                        $fileName = sprintf('%s/_po/%s.po', BuildControl::SourceLang, $file);
+                        if (file_exists($fileName)) {
+                            $c = file_get_contents($fileName);
+                            $c = str_replace('charset=CHARSET', 'charset=UTF-8', $c);
+                            file_put_contents($fileName, $c);
+                        }
+                    }
+                }
+            }
+            echo 'OK';
+        }
+    }
+
+    /**
+     * If not generating, please check permissions
+     */
+    public function GenerateMachineObjects() {
+        if ($this->CheckPassword()) {
+            foreach ($this->SeekFiles(BuildControl::SourceLang, 'po') as $po) {
+                if (strpos($po, '_po') === false) {
+                    $filePath = explode('.', $po);                    
+                    system(sprintf('msgfmt %s -o %s.mo', $po, $filePath[0]), $check);
+                    if ($check > 1) {
+                        include('src/build/view/msgfmt-run.php');
+                        return;
+                    }
+                }
+            }
+            system(sprintf('chmod 755 %s/ -R', BuildControl::SourceLang));
+            echo 'OK';
+        }
     }
 
 }

@@ -440,7 +440,7 @@ class Cache {
 
     public function getCache() {
         global $_Cache;
-        $data = $_Cache->getVar($_SERVER['REQUEST_URI']);
+        $data = $_Cache->getVar(filter_input(INPUT_SERVER, 'REQUEST_URI'));
         if ($data !== false) {
             print_r($data);
             exit;

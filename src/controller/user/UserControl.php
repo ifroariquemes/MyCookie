@@ -2,8 +2,9 @@
 
 namespace controller\user;
 
-use model\user;
 use lib\MyCookie;
+use model\user\accountType\AccountType;
+use model\user\User;
 
 class UserControl {
 
@@ -13,23 +14,22 @@ class UserControl {
         }
     }
 
-    public function FirstRun() {
-        $accAdm = new user\accountType\AccountType();
-        $accAdm->setName('Administrador');
-        $accAdm->setFlag('ADMINISTRATOR');
-        $accAdm->Save();
-        $accUsr = new user\accountType\AccountType();
-        $accUsr->setName('Usuário');
-        $accUsr->setFlag('USER');
-        $accUsr->Save();
-        $user = new user\User;
-        $user->setName('Administrador');
-        $user->setLastName('Padrão');
-        $user->setLogin('admin');
-        $user->setPassword('admin');
-        $user->setAccountType($accAdm);
-        $user->setStatus('1');
-        $user->Save();
+    public static function FirstRun() {
+        $acAdmin = new AccountType();
+        $acAdmin->setFlag('ADMINISTRATOR');
+        $acAdmin->setName('Administrator');
+        $acAdmin->Save();
+        $acUser = new AccountType();
+        $acUser->setFlag('USER');
+        $acUser->setName('User');
+        $acUser->Save();
+        $uAdmin = new User();
+        $uAdmin->setName('Administrator');
+        $uAdmin->setLastName('Default');
+        $uAdmin->setLogin('admin');
+        $uAdmin->setPassword('admin');
+        $uAdmin->setAccountType($acAdmin);
+        $uAdmin->Save();
     }
 
     public static function Manage() {
@@ -81,37 +81,40 @@ class UserControl {
     }
 
     public function Login() {
-        $users = user\User::Select('u')
+        $users = User::Select('u')
                 ->where('u.login = :login')
                 ->setParameter('login', filter_input(INPUT_POST, 'login'))
                 ->getQuery()
                 ->execute();
-        $_SESSION[MyCookie::MessageSession] = 'Usuário ou senha inválida. Tente novamente.';
-        if (count($users) == 1)
-            if ($users[0]->getPassword() == md5(filter_input(INPUT_POST, 'password')))
+        $_SESSION[MyCookie::MessageSession] = _e('Invalid login or password. Please, try again.', 'user');
+        if (count($users) == 1) {
+            if ($users[0]->getPassword() == md5(filter_input(INPUT_POST, 'password'))) {
                 if ($users[0]->getStatus()) {
                     $_SESSION[MyCookie::UserIdSession] = $users[0]->getId();
-                    $_SESSION[MyCookie::MessageSession] = 'Sucesso!';
-                } else
-                    $_SESSION[MyCookie::MessageSession] = 'Usuário desativado. Contate o administrador.';
+                    $_SESSION[MyCookie::MessageSession] = _e('Success!', 'user');
+                } else {
+                    $_SESSION[MyCookie::MessageSession] = _('Your username was deactivated. Please, contact administration.', 'user');
+                }
+            }
+        }
         header('location:' . $_SERVER['HTTP_REFERER']);
     }
 
     public static function LoadSessionUser() {
         global $_MyCookieUser;
         if (array_key_exists(MyCookie::UserIdSession, $_SESSION) & !empty($_SESSION[MyCookie::UserIdSession])) {
-            $_MyCookieUser = user\User::Select('u')
-                ->where('u.id = :id')
-                ->setParameter('id', $_SESSION[MyCookie::UserIdSession])
-                ->getQuery()
-                ->execute()[0];            
+            $_MyCookieUser = User::Select('u')
+                            ->where('u.id = :id')
+                            ->setParameter('id', $_SESSION[MyCookie::UserIdSession])
+                            ->getQuery()
+                            ->execute()[0];
         }
     }
 
     public function Logout() {
         global $_MyCookie;
-        unset($_SESSION['MyCookie_SESSAO_USUARIO']);
-        unset($_SESSION['MyCookie_SESSAO_MSG']);
+        unset($_SESSION[MyCookie::UserIdSession]);
+        unset($_SESSION[MyCookie::MessageSession]);
         header('location:' . $_MyCookie->getSite());
     }
 

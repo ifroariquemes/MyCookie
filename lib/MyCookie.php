@@ -5,8 +5,6 @@ namespace lib;
 use lib\util;
 use controller\user\UserControl;
 
-require_once ('MyCookieDatabase.php');
-
 /**
  * @author Natanael Simoes
  * @category Framework
@@ -81,6 +79,12 @@ class MyCookie {
     private $site;
 
     /**
+     * MyCookie configuration
+     * @var mixed
+     */
+    private $configuration;
+
+    /**
      * The instance for singleton
      * @var MyCookie 
      */
@@ -102,9 +106,9 @@ class MyCookie {
      * Build the rules for what execute based on URL
      * @global util\Cache $_Cache     
      */
-    public function __construct() {
-        UserControl::LoadSessionUser();
+    public function __construct() {        
         $this->CheckCache();
+        UserControl::LoadSessionUser();        
         $this->setURLVariables();
         $this->setGateway();
         if ($this->getURLVariablesLength() > 0) {
@@ -239,7 +243,10 @@ class MyCookie {
     }
 
     public function getMyCookieConfiguration() {
-        return json_decode(file_get_contents('config.json'));
+        if (empty($this->configuration)) {
+            $this->configuration = json_decode(file_get_contents('config.json'));
+        }
+        return $this->configuration;
     }
 
     /**
@@ -402,12 +409,12 @@ class MyCookie {
     public function LoadView($module, $view) {
         include("src/view/$module/$view.php");
     }
-    
+
     public function CSSBundle() {
         $cssBundle = '<link rel="stylesheet" type="text/css" href="%scomponents/bundle.css" />';
         echo sprintf($cssBundle, $this->getSite());
     }
-    
+
     public function JSBundle() {
         $scriptRequireJS = '<script type="text/javascript" src="%scomponents/require.js"></script>';
         $scriptBundle = '<script type="text/javascript" src="%scomponents/bundle.js"></script>';

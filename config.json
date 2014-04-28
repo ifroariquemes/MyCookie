@@ -1,4 +1,5 @@
 {
+    "lang": "en_US",
     "database": {
         "driver": "mysql",
         "user": "root",

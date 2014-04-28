@@ -2,11 +2,11 @@
 
 namespace controller\administrator;
 
-use lib;
-use lib\MyCookie;
+use lib\util\Router;
 use controller\user\UserControl;
+use model\user\accountType\AccountType;
 
-class AdministratorControl extends lib\MyCookieRouter {
+class AdministratorControl extends Router {
 
     private $userControl;
 
@@ -22,18 +22,25 @@ class AdministratorControl extends lib\MyCookieRouter {
     }
 
     public static function ShowLogin() {
-        /* @var $_MyCookie MyCookie */
+        /* @var $_MyCookie \lib\MyCookie */
         global $_MyCookie;
-        $_MyCookie->LoadView('administrator', 'Login');        
+        $account = AccountType::Select('a')->getQuery()->execute();
+        if (count($account) === 0) {
+            UserControl::FirstRun();             
+        }
+        $_MyCookie->LoadView('administrator', 'Login');
         //unset($_SESSION[MyCookie::MessageSession]);
     }
 
     public function ShowPage($view = null, $ajax = false) {
+        /* @var $_MyCookie \lib\MyCookie */
+        global $_MyCookie;
+        /* @var $_Cache \lib\util\Cache */
         global $_Cache;
         $this->VerifyAdministratorLoggedIn();
         if (is_null($view)) {
             ob_start();
-            include('administrador.view.principal.php');
+            $_MyCookie->LoadView('administrator', 'Main');            
             $view = ob_get_contents();
             ob_end_clean();
         }
@@ -42,7 +49,7 @@ class AdministratorControl extends lib\MyCookieRouter {
             echo $view;
         } else {
             ob_start();
-            include('administrador.tmpl.padrao.php');
+            $_MyCookie->LoadView('administrator', 'Template');            
             $page = ob_get_contents();
             ob_end_clean();
             $_Cache->doCache($page);
@@ -50,7 +57,7 @@ class AdministratorControl extends lib\MyCookieRouter {
         }
     }
 
-    public static function CabecalhoModulo($nomeModulo, $voltarPara) {
+    public static function ModuleHeader($nomeModulo, $voltarPara) {
 
         include('administrador.view.cabecalho.php');
     }

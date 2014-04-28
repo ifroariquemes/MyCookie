@@ -4,7 +4,7 @@ namespace controller\index;
 
 use lib;
 
-class IndexControl extends lib\MyCookieRouter {
+class IndexControl extends lib\util\Router {
 
     public function ShowPage($view = null) {
         global $_Cache;
