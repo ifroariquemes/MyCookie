@@ -1,5 +1,5 @@
 ({
     cssIn: "build-config.css",
-    out: "../../components/bundle.css",
+    out: "../bundle.css",
     optimizeCss: "default"
 })

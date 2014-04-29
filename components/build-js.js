@@ -5,6 +5,6 @@
        bootstrap: "../vendor/sheillendra/metro-bootstrap/docs/bootstrap",
        application: "../vendor/sheillendra/metro-bootstrap/docs/application",
    },
-   name: "build/build-config",
-   out: "../bundle.js"
+   name: "components/build-config",
+   out: "bundle.js"
 })

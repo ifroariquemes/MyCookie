@@ -20,37 +20,42 @@ global $_MyCookieUser;
         <meta name="viewport" content="width=device-width">
         <title>Biscoito - Painel Administrativo</title>                        
         <?php $_MyCookie->CSSBundle() ?>
+        <style type="text/css">            
+            .user-info-block {
+                display: block;
+                float: left;
+                margin-left: 8px;
+            }
+            .user-info-block b {
+                display: inline-block;
+                font-size: 38px;
+                height: 46px;
+                line-height: 46px;
+                vertical-align: top;
+                width: 46px;
+            }
+        </style>
         <!--@RenderSection("head", false)-->
     </head>
     <body>        
-        <header class="container-fluid">
+        <header class="container">
             <div class="row">
-                <nav class="navbar navbar-default navbar-static-top" role="navigation">
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <a class="navbar-brand" href="#">Brand</a>
-                    </div>
-                    <div class="collapse navbar-collapse navbar-ex1-collapse">                    
-                        <ul class="nav navbar-nav navbar-right">                        
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Action</a></li>
-                                    <li><a href="#">Another action</a></li>
-                                    <li><a href="#">Something else here</a></li>
-                                    <li><a href="#">Separated link</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div><!-- /.navbar-collapse -->
-                </nav>
+                <div class="col-lg-6">
+                    <h1><?php _e('administrative panel', 'user') ?></h1>
+                </div>  
+                <div class="col-lg-offset-4 col-lg-2">
+                    <div class=" tile thumbnail tile-green">
+                        <a class="fa-links" href="#">
+                            <h1>Admin</h1>                            
+                            <i class="fa fa-3x fa-home"></i>
+                        </a>
+                    </div>                    
+                </div>
             </div>
         </header>
+        <section class="container">
+
+        </section>
         <?php if ($_MyCookie->getModule() == 'administrator') : ?>
             <header id="nav-bar" class="container-fluid">
                 <div class="row">

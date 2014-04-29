@@ -4,11 +4,11 @@ namespace controller\build;
 
 class BuildControl {
 
-    const RJSFile = 'components/build/r.js';
-    const BuildJSFile = 'components/build/build-js.js';
-    const BuildCSSFile = 'components/build/build-css.js';
-    const BuildJSConfigFile = 'components/build/build-config.js';
-    const BuildCSSConfigFile = 'components/build/build-config.css';
+    const RJSFile = 'components/r.js';
+    const BuildJSFile = 'components/build-js.js';
+    const BuildCSSFile = 'components/build-css.js';
+    const BuildJSConfigFile = 'components/build-config.js';
+    const BuildCSSConfigFile = 'components/build-config.css';
     const SourceJS = 'src/assets/js';
     const SourceCSS = 'src/assets/css';
     const SourceViews = 'src/view';
@@ -51,8 +51,8 @@ class BuildControl {
                 fwrite($fp, sprintf("       %s: \"../%s\",\n", end($jsFilesId), $filePath[0]));
             }
             fwrite($fp, "   },\n");
-            fwrite($fp, "   name: \"build/build-config\",\n");
-            fwrite($fp, "   out: \"../bundle.js\"\n");
+            fwrite($fp, "   name: \"components/build-config\",\n");
+            fwrite($fp, "   out: \"bundle.js\"\n");
             fwrite($fp, "})");
             fclose($fp);
             $this->CreateBuildJSConfig($jsFilesId);
@@ -113,15 +113,15 @@ class BuildControl {
             $fp = fopen(BuildControl::BuildCSSConfigFile, 'w+');
             if ($myCookieConfiguration->build->use_bootstrap) {
                 if ($myCookieConfiguration->build->use_metro) {
-                    fwrite($fp, "@import url('../../vendor/sheillendra/metro-bootstrap/css/metro-bootstrap.css');");
-                    fwrite($fp, "\n@import url('../../vendor/sheillendra/metro-bootstrap/docs/font-awesome.css');");
+                    fwrite($fp, "@import url('../vendor/sheillendra/metro-bootstrap/css/metro-bootstrap.css');");
+                    fwrite($fp, "\n@import url('../vendor/sheillendra/metro-bootstrap/docs/font-awesome.css');");
                 } else {
-                    fwrite($fp, "@import url('../../vendor/twbs/bootstrap/dist/css/bootstrap.css');");
-                    fwrite($fp, "\n@import url('../../vendor/twbs/bootstrap/dist/css/bootstrap-theme.css');");
+                    fwrite($fp, "@import url('../vendor/twbs/bootstrap/dist/css/bootstrap.css');");
+                    fwrite($fp, "\n@import url('../vendor/twbs/bootstrap/dist/css/bootstrap-theme.css');");
                 }
             }
             foreach ($this->SeekFiles(BuildControl::SourceCSS, 'css') as $css) {
-                fwrite($fp, "\n@import url('../../$css');");
+                fwrite($fp, "\n@import url('../$css');");
             }
             fclose($fp);
         } else {
@@ -206,13 +206,13 @@ class BuildControl {
                     if (count(scandir(sprintf('%s/%s', BuildControl::SourceViews, $file))) > 2) {
                         system(sprintf('xgettext -d %s -p %s/_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildControl::SourceLang, BuildControl::SourceViews, $file), $check);
                         if ($check !== 0) {
-                            system(sprintf('gettext -d %s -p %s_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildControl::SourceLang, BuildControl::SourceViews, $file), $check);
+                            system(sprintf('gettext -d %s -build/p %s_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildControl::SourceLang, BuildControl::SourceViews, $file), $check);
                             if ($check !== 0) {
                                 include('src/build/view/xgettext-run.php');
                                 return;
                             }
                         }
-                        $fileName = sprintf('%s/_po/%s.po', BuildControl::SourceLang, $file);
+                        $fileName = sprintf('%s/_po/%s.po',build/ BuildControl::SourceLang, $file);
                         if (file_exists($fileName)) {
                             $c = file_get_contents($fileName);
                             $c = str_replace('charset=CHARSET', 'charset=UTF-8', $c);
