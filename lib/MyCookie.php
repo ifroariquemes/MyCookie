@@ -107,6 +107,8 @@ class MyCookie {
      * @global util\Cache $_Cache     
      */
     public function __construct() {        
+        var_dump($_SERVER);
+        exit;
         $this->CheckCache();
         UserControl::LoadSessionUser();        
         $this->setURLVariables();
@@ -408,6 +410,10 @@ class MyCookie {
 
     public function LoadView($module, $view) {
         include("src/view/$module/$view.php");
+    }
+    
+    public function LoadTemplate($module, $template, $view) {
+        include("src/view/$module/$template.php");
     }
 
     public function CSSBundle() {

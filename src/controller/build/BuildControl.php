@@ -31,16 +31,16 @@ class BuildControl {
             fwrite($fp, "   baseUrl: \"../\",\n");
             fwrite($fp, "   paths: {\n");
             if ($myCookieConfiguration->build->use_jquery) {
-                fwrite($fp, "       jquery: \"../vendor/sheillendra/metro-bootstrap/docs/jquery-1.8.0\",\n");
+                fwrite($fp, "       jquery: \"vendor/sheillendra/metro-bootstrap/docs/jquery-1.8.0\",\n");
                 array_push($jsFilesId, 'jquery');
             }
             if ($myCookieConfiguration->build->use_bootstrap) {
                 if ($myCookieConfiguration->build->use_metro) {
-                    fwrite($fp, "       bootstrap: \"../vendor/sheillendra/metro-bootstrap/docs/bootstrap\",\n");
-                    fwrite($fp, "       application: \"../vendor/sheillendra/metro-bootstrap/docs/application\",\n");
+                    fwrite($fp, "       bootstrap: \"vendor/sheillendra/metro-bootstrap/docs/bootstrap\",\n");
+                    fwrite($fp, "       application: \"vendor/sheillendra/metro-bootstrap/docs/application\",\n");
                     array_push($jsFilesId, 'bootstrap', 'application');
                 } else {
-                    fwrite($fp, "       bootstrap: \"../vendor/twbs/bootstrap/dist/js/bootstrap\",\n");
+                    fwrite($fp, "       bootstrap: \"vendor/twbs/bootstrap/dist/js/bootstrap\",\n");
                     array_push($jsFilesId, 'bootstrap');
                 }
             }
@@ -203,8 +203,8 @@ class BuildControl {
             $fHandle = opendir(BuildControl::SourceViews);
             while (($file = readdir($fHandle)) !== false) {
                 if ($file !== '.' && $file !== '..') {
-                    if (count(scandir(sprintf('%s/%s', BuildControl::SourceViews, $file))) > 2) {
-                        system(sprintf('xgettext -d %s -p %s/_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildControl::SourceLang, BuildControl::SourceViews, $file), $check);
+                    if (count(scandir(sprintf('%s/%s', BuildControl::SourceViews, $file))) > 2) {                        
+                        system(sprintf('xgettext -d %s -p %s/_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildControl::SourceLang, BuildControl::SourceViews, $file), $check);                        
                         if ($check !== 0) {
                             system(sprintf('gettext -d %s -build/p %s_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildControl::SourceLang, BuildControl::SourceViews, $file), $check);
                             if ($check !== 0) {
@@ -212,7 +212,7 @@ class BuildControl {
                                 return;
                             }
                         }
-                        $fileName = sprintf('%s/_po/%s.po',build/ BuildControl::SourceLang, $file);
+                        $fileName = sprintf('%s/_po/%s.po', BuildControl::SourceLang, $file);
                         if (file_exists($fileName)) {
                             $c = file_get_contents($fileName);
                             $c = str_replace('charset=CHARSET', 'charset=UTF-8', $c);
@@ -232,7 +232,7 @@ class BuildControl {
         if ($this->CheckPassword()) {
             foreach ($this->SeekFiles(BuildControl::SourceLang, 'po') as $po) {
                 if (strpos($po, '_po') === false) {
-                    $filePath = explode('.', $po);                    
+                    $filePath = explode('.', $po);                      
                     system(sprintf('msgfmt %s -o %s.mo', $po, $filePath[0]), $check);
                     if ($check > 1) {
                         include('src/build/view/msgfmt-run.php');

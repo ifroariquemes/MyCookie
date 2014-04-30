@@ -69,7 +69,7 @@ class UserControl {
         $usuario = unserialize($_SESSION['MyCookie_SESSAO_USUARIO']);
 
         if (is_object($usuario))
-            return $usuario->getNome();
+            return $usuario->getName();
     }
 
     public static function getSobrenomeUsuario() {

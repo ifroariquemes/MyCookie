@@ -49,7 +49,7 @@ class AdministratorControl extends Router {
             echo $view;
         } else {
             ob_start();
-            $_MyCookie->LoadView('administrator', 'Template');            
+            $_MyCookie->LoadTemplate('administrator', 'Dashboard.tmpl', $view);            
             $page = ob_get_contents();
             ob_end_clean();
             $_Cache->doCache($page);

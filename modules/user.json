@@ -1,5 +1,5 @@
 {
-    "name": "User",
+    "name": "Users",
     "description": "",
     "authors": [
         {
@@ -10,6 +10,10 @@
     "version": "1.0",
     "creationDate": "2012-06-15",
     "lastReleaseDate": "2014-04-20",
+    "tile": {
+        "icon": "fa-user",
+        "color": "concrete"
+    },
     "home": {
         "control": "UserControl",
         "action": "Manage"

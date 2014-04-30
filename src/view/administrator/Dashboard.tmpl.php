@@ -21,47 +21,62 @@ global $_MyCookieUser;
         <title>Biscoito - Painel Administrativo</title>                        
         <?php $_MyCookie->CSSBundle() ?>
         <style type="text/css">    
-            header {
+            #admin-header {
                 margin-top: 40px;
             }
-            .user-info {                
+            #admin-header .user-info {                
                 position: relative;
                 text-align: right;  
                 float:right;
                 padding: 0px 10px;
             }
-            .user-info:hover {                
+            #admin-header .user-info:hover {                
                 text-decoration: none;
                 background-color: #eee;
             }
-            .user-info h3 {
+            #admin-header .user-info h3 {
                 left: -20px;
             }
-            .user-info i {
+            #admin-header .user-info i {
                 position: relative;
                 top: 20px;
                 margin-left: 10px;
             }
+            #admin-header .dropdown-menu {
+                left: auto !important;
+                right: 15px;
+            }
+            #admin-tile-section .thumbnail {
+                margin-right: 10px;
+            }
+            #admin-tile-section .thumbnail:hover {
+                text-decoration: none;
+            }
         </style>        
     </head>
     <body>        
-        <header class="container-fluid">
+        <header id="admin-header" class="container">
             <div class="row">
                 <div class="col-lg-6">
                     <h1><?php _e('administrative panel', 'user') ?></h1>
                 </div>                  
-                <div class="col-lg-offset-3 col-lg-3">                                        
-                    <a class="user-info" href="#">    
+                <div class="col-lg-offset-3 col-lg-3 btn-group">                                        
+                    <a class="user-info dropdown-toggle" href="#" data-toggle="dropdown">    
                         <div style="float: left">
                             <h3><?php echo $_MyCookieUser->getName() ?></h3>
                             <h4><?php echo $_MyCookieUser->getLastName() ?></h4>                                                                                
                         </div>
                         <i class="fa fa-4x fa-user"></i>
                     </a>                    
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#"><?php _e('Edit profile', 'user') ?></a></li>                       
+                        <li class="divider"></li>
+                        <li><a href="user/logout"><?php _e('Sign out', 'user') ?></a></li>
+                    </ul>
                 </div>                                                        
             </div>        
         </header>    
-        
+
         <section id="tiles" class="container">
             <?php echo $view ?>
         </section>
