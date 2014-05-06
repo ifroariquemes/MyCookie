@@ -3,3 +3,4 @@ vendor/
 /cache/
 /components/bundle.css
 /components/bundle.js
+/src/lang/_po/
