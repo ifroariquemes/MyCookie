@@ -1,5 +1,5 @@
 <aside id="speed-dial">                        
 
-    <?php echo controller\administrator\menu\MenuControl::ListIcons() ?>
+    <?php echo controller\administrator\menu\MenuControl::ListModuleIcons() ?>
 
 </aside>

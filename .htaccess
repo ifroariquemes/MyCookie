@@ -5,6 +5,6 @@ AddType application/x-httpd-php54 .php
 RewriteEngine On
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?route=$1
+RewriteRule ^(.*)$ index.php [L]
 </IfModule>
 # END MyCookie

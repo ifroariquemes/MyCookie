@@ -1,1 +1,0 @@
-require(['jquery','bootstrap','application',], function() { });

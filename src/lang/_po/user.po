@@ -17,33 +17,18 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/view/administrator/Login.php:12 src/view/administrator/Login.php:19
-#: src/view/administrator/Template.php:20
-#: src/view/administrator/Template.php:77
-#: src/view/administrator/Template.php:87
-msgid "administrative panel"
+#: src/view/user/Manage.table.php:6
+msgid "Name"
 msgstr ""
 
-#: src/view/administrator/Login.php:23
+#: src/view/user/Manage.table.php:7
 msgid "Username"
 msgstr ""
 
-#: src/view/administrator/Login.php:24
-msgid "Login"
+#: src/view/user/Manage.table.php:18
+msgid "Edit"
 msgstr ""
 
-#: src/view/administrator/Login.php:27 src/view/administrator/Login.php:28
-msgid "Password"
-msgstr ""
-
-#: src/view/administrator/Login.php:31
-msgid "Sign in"
-msgstr ""
-
-#: src/view/administrator/Template.php:107
-msgid "Edit profile"
-msgstr ""
-
-#: src/view/administrator/Template.php:109
-msgid "Sign out"
+#: src/view/user/Manage.table.php:24
+msgid "There is no user with this account type"
 msgstr ""

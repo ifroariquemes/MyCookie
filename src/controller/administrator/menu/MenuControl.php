@@ -6,22 +6,29 @@ use model\administrator\menu\Menu;
 
 class MenuControl {
 
-    public static function ListNames() {
-        $menuList = MenuControl::LoadMenus();
-        include('menu.view.listanomes.php');
+    public static function ListCurrentModuleName() {
+        global $_MyCookie;
+        return MenuControl::LoadMenu("{$_MyCookie->getModule()}.json")->getName();
     }
 
-    public static function ListIcons() {
-        $menuList = MenuControl::LoadMenus();
-        include('src/view/administrator/menu/ListIcons.php');
+    public static function ListModuleNames() {
+        global $_MyCookie;
+        $data = MenuControl::LoadMenus();
+        $_MyCookie->LoadView('administrator/menu', 'ListNames', $data);
+    }
+
+    public static function ListModuleIcons() {
+        global $_MyCookie;
+        $data = MenuControl::LoadMenus();
+        $_MyCookie->LoadView('administrator/menu', 'ListIcons', $data);
     }
 
     private static function LoadMenus() {
         $menuList = array();
         $menuListRet = array();
-        $hDiretorio = opendir('modules');
+        $hDiretorio = opendir('src/config');
         while ($hModule = readdir($hDiretorio)) {
-            if (!in_array($hModule, array('.', '..', 'administrator.json', 'index.json', 'build.json'))) {
+            if (!in_array($hModule, array('.', '..', 'administrator.php', 'index.php', 'build.php'))) {
                 if (($menuOption = MenuControl::LoadMenu($hModule)) !== false) {
                     array_push($menuList, $menuOption);
                     array_push($menuListRet, $hModule);
@@ -32,57 +39,19 @@ class MenuControl {
         return $menuList;
     }
 
-    private static function LoadMenu($module) {        
-        $moduleConfig = json_decode(file_get_contents("modules/$module"));
-        $moduleName = explode('.', $module)[0];
-        if (!in_array('name', array_keys(get_object_vars($moduleConfig)))) {
-            throw new \Exception("The module at $module needs at least a name.");
+    private static function LoadMenu($moduleConfigFile) {        
+        global $_MyCookie;
+        $modulePathName = explode('.',$moduleConfigFile)[0];
+        $moduleConfig = $_MyCookie->getModuleConfiguration($modulePathName);                
+        if (empty($moduleConfig->getName())) {
+            throw new \Exception("The $modulePathName module needs a name.");
         }
-        return (MenuControl::VerifyAccessLevel(@$moduleConfig->access)) ? new Menu($moduleConfig->name, $moduleName, @$moduleConfig->tile->icon, @$moduleConfig->tile->color) : false;
-    }    
-
-    public static function mountLinkOption($moduleName, TMenuOpcao $opcao) {
-
-        global $_Biscoito;
-
-        $opcaoFormat = '<li class="%s"><a href="%s" onclick="%s">%s</a></li>';
-
-        $urlFormat = '%sadministrador/%s/%s/';
-
-        $popupFormat = "_Biscoito.AbrirPopup('Frm%s',700,'%s');";
-
-        $classePadrao = 'icn_novo_artigo';
-
-        $popup = '';
-
-        $moduleName = strtolower(Util\TTexto::RemoverAcentos($moduleName));
-
-        $nomeOpcao = strtolower(Util\TTexto::RemoverAcentos($opcao->getName()));
-
-        $icone = (!$opcao->getIcon()) ? $classePadrao : "icn_{$opcao->getIcon()}";
-
-        if ($opcao->AbrirPopup()) {
-
-            $popup = sprintf($popupFormat, $moduleName, $opcao->getURL());
-
-            $url = '#';
-        } else
-            $url = (empty($opcao->getURL)) ?
-                    sprintf($urlFormat, $_Biscoito->getSite(), $moduleName, $nomeOpcao) :
-                    sprintf($urlFormat, $_Biscoito->getSite(), $opcao->getURL(), '');
-
-        echo sprintf($opcaoFormat, $icone, $url, $popup, $opcao->getName());
+        return (MenuControl::VerifyAccessLevel($moduleConfig->getAccesses())) ? new Menu($modulePathName, $moduleConfig) : false;
     }
 
-    private static function VerifyAccessLevel($level) {
-        global $_MyCookieUser;
-        $level = trim($level);
-        $level = str_replace("\n", '|', $level);
-        $level = str_replace(" ", '', $level);
-        if (empty($level))
-            return true;
-        $level = explode("|", $level);
-        return (in_array($_MyCookieUser->getAccountType()->getFlag(), $level));
+    private static function VerifyAccessLevel($accesses) {
+        global $_MyCookieUser;                    
+        return (empty($accesses) || in_array($_MyCookieUser->getAccountType()->getFlag(), $accesses));
     }
 
 }

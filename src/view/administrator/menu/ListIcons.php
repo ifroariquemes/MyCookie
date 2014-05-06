@@ -2,7 +2,7 @@
 <div class="row">
     <div class="col-lg-12">        
         <div id="admin-tile-section">            
-            <?php foreach ($menuList as $menu) : ?>                    
+            <?php foreach ($data as $menu) : ?>                    
                 <?php $tile_double = (strlen($menu->getName()) <= 7) ? '' : 'tile-double'; ?>                    
                 <a class="thumbnail tile fa-links tile-<?php echo $menu->getColor() ?> <?php echo $tile_double ?>" href="<?php echo $_MyCookie->mountLink('administrator', $menu->getDirectory()); ?>">                                                
                     <?php if (!empty($menu->getIcon())) : ?>

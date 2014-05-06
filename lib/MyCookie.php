@@ -3,7 +3,7 @@
 namespace lib;
 
 use lib\util;
-use controller\user\UserControl;
+use controller\user\UserController;
 
 /**
  * @author Natanael Simoes
@@ -106,11 +106,11 @@ class MyCookie {
      * Build the rules for what execute based on URL
      * @global util\Cache $_Cache     
      */
-    public function __construct() {        
-        var_dump($_SERVER);
-        exit;
+    public function __construct() {
         $this->CheckCache();
-        UserControl::LoadSessionUser();        
+        global $_EntityManager;
+        $_EntityManager = util\Database::EntityManager();
+        UserController::LoadSessionUser();
         $this->setURLVariables();
         $this->setGateway();
         if ($this->getURLVariablesLength() > 0) {
@@ -136,9 +136,10 @@ class MyCookie {
     }
 
     private function setActionCustom() {
-        $xmlModuloConfig = $this->getModuleConfiguration($this->module);
+        $moduleConfig = $this->getModuleConfiguration($this->module);
+        $this->VerifyModuleConfigurationIntegrity($moduleConfig);
         if ($this->getURLVariablesLength() === 1 || $this->module == 'administrador') {
-            $this->action = strval($xmlModuloConfig->home->action);
+            $this->action = strval($moduleConfig->getHome()->getAction());
         } else {
             $this->action = end($this->URLVariables);
         }
@@ -157,7 +158,11 @@ class MyCookie {
     }
 
     private function setURLVariables() {
-        $this->URLVariables = explode('/', filter_input(INPUT_GET, 'route'));
+        $remove = str_replace('/index.php', '', filter_input(INPUT_SERVER, 'SCRIPT_NAME'));
+        $this->URLVariables = explode('/', str_replace($remove, '', filter_input(INPUT_SERVER, 'REDIRECT_URL')));
+        if ($this->URLVariables[0] == '') {
+            array_shift($this->URLVariables);
+        }
         if (end($this->URLVariables) == '') {
             array_pop($this->URLVariables);
         }
@@ -223,24 +228,32 @@ class MyCookie {
     public function getControlClass($module = null, $submodule = '') {
         if (is_null($module)) {
             if (empty($this->controlClass)) {
-                /* @var $moduleConfiguration mixed */
-                /* @var $controller mixed */
                 $moduleConfiguration = $this->getModuleConfiguration($this->module);
-                foreach ($moduleConfiguration->controllers as $controller) {
-                    if ($this->submodule == $controller->submodule) {
-                        return $this->controlClass = "$this->namespace\\$controller->name";
+                $this->VerifyModuleConfigurationIntegrity($moduleConfiguration);
+                foreach ($moduleConfiguration->getControllers() as $controller) {
+                    if ($this->submodule == $controller->getSubmodule()) {
+                        return $this->controlClass = "$this->namespace\\{$controller->getName()}";
                     }
                 }
             }
             return $this->controlClass;
         } else {
             $moduleConfiguration = $this->getModuleConfiguration($module);
+            $this->VerifyModuleConfigurationIntegrity($moduleConfiguration);
             $namespace = "controller\\$module";
-            foreach ($moduleConfiguration->controllers as $controller) {
-                if ($submodule == $controller->submodule) {
-                    return (empty($submodule)) ? "$namespace\\$controller->name" : "$namespace\\$submodule\\$controller->name";
+            foreach ($moduleConfiguration->getControllers() as $controller) {
+                if ($submodule == $controller->getSubmodule()) {
+                    return (empty($submodule)) ? "$namespace\\{$controller->getName()}" : "$namespace\\$submodule\\{$controller->getName()})";
                 }
             }
+        }
+
+        //throw new \Exception("There is something wrong with module $module configuration.");
+    }
+
+    public function VerifyModuleConfigurationIntegrity($moduleConfiguration) {
+        if (is_null($moduleConfiguration)) {
+            throw new \Exception("There is something wrong with $this->module module configuration.");
         }
     }
 
@@ -254,11 +267,12 @@ class MyCookie {
     /**
      * Retorna um objeto com a configuracao de um modulo
      * @param string $module Nome do modulo
-     * @return SimpleXMLElement
+     * @return util\module\Module
      */
     public function getModuleConfiguration($module) {
         $module = strtolower($module);
-        return json_decode(file_get_contents("modules/$module.json"));
+        $config = str_replace(array('<?php', '?>'), '', file_get_contents("src/config/$module.php"));
+        return eval($config);
     }
 
     /**
@@ -408,10 +422,10 @@ class MyCookie {
         return $request;
     }
 
-    public function LoadView($module, $view) {
+    public function LoadView($module, $view, $data = null) {
         include("src/view/$module/$view.php");
     }
-    
+
     public function LoadTemplate($module, $template, $view) {
         include("src/view/$module/$template.php");
     }
@@ -421,11 +435,12 @@ class MyCookie {
         echo sprintf($cssBundle, $this->getSite());
     }
 
-    public function JSBundle() {
+    public function JSBundle() {        
         $scriptRequireJS = '<script type="text/javascript" src="%scomponents/require.js"></script>';
-        $scriptBundle = '<script type="text/javascript" src="%scomponents/bundle.js"></script>';
+        $scriptBundle = '<script type="text/javascript" src="%scomponents/bundle.js"></script>';        
+        include_once('components/mycookie.js.php');
         echo sprintf($scriptRequireJS, $this->getSite());
-        echo sprintf($scriptBundle, $this->getSite());
+        echo sprintf($scriptBundle, $this->getSite());        
     }
 
 }

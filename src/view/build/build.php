@@ -50,6 +50,11 @@
                         <i class="step5 fa fa-check hidden"></i>
                         <button type="button" class="btn btn-sm btn-warning step5 hidden" onclick="Recreate()"><?php _e('Re-create database', 'build') ?></button>
                     </p>   
+                    <p class="step-cache hidden">7 - <?php _e('Cleaning cache', 'build') ?>...
+                        <img class="step-cache" src="src/assets/images/loading1.gif" />
+                        <i class="step-cache fa fa-ambulance hidden"></i>
+                        <i class="step-cache fa fa-check hidden"></i>                        
+                    </p>
                     <p class="done hidden text-success"><?php _e('Done!', 'build') ?></p>    
                 </div>
                 <div class="col-lg-6">
@@ -213,8 +218,8 @@
                                     data: "password=" + password,
                                     success: function(ret) {
                                         $('.ormoutput').removeClass('hidden').children('pre').html(ret);
-                                        $('img.step5').addClass('hidden');
-                                        $('p.done').removeClass('hidden');
+                                        $('img.step5').addClass('hidden'); 
+                                        $('p.step-cache').removeClass('hidden');                                        
                                         if (ret.substring(0, 8) === 'SQLSTATE') {
                                             $('p.step5').addClass('text-danger');
                                             $('i.step5.fa-ambulance').removeClass('hidden');
@@ -223,6 +228,20 @@
                                             $('i.step5.fa-check').removeClass('hidden');
                                             $('button.step5').removeClass('hidden');
                                         }
+                                        StepCache();
+                                    }
+                                });
+                            }
+                            
+                            function StepCache() {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: 'build/CleanCache?async',
+                                    data: "password=" + password,
+                                    success: function(ret) {                                        
+                                        $('p.done').removeClass('hidden');
+                                        $('img.step-cache').addClass('hidden');                                        
+                                        $('i.step-cache.fa-check').removeClass('hidden');                                        
                                     }
                                 });
                             }

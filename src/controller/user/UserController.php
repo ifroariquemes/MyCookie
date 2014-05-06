@@ -6,7 +6,7 @@ use lib\MyCookie;
 use model\user\accountType\AccountType;
 use model\user\User;
 
-class UserControl {
+class UserController {
 
     public function __construct() {
         if (is_null(filter_input(INPUT_SERVER, MyCookie::MessageSession))) {
@@ -33,8 +33,9 @@ class UserControl {
     }
 
     public static function Manage() {
-        UserControl::VerifyAccessLevel('ADMINISTRADOR');
-        include('usuario.view.gerenciar.php');
+        global $_MyCookie;
+        UserController::VerifyAccessLevel('ADMINISTRATOR');
+        $_MyCookie->LoadView('user', 'Manage');
     }
 
     public static function Salvar() {
@@ -119,7 +120,7 @@ class UserControl {
     }
 
     public static function isAdministratorLoggedIn() {
-        if (UserControl::isUserLoggedIn()) {
+        if (UserController::isUserLoggedIn()) {
             global $_MyCookieUser;
             return ($_MyCookieUser->getAccountType()->getFlag() == 'ADMINISTRATOR');
         }
@@ -130,22 +131,19 @@ class UserControl {
         return isset($_SESSION[MyCookie::UserIdSession]);
     }
 
-    public static function VerifyAccessLevel($acesso, $_ = null) {
+    public static function VerifyAccessLevel($accessLevel, $_ = null) {
         global $_MyCookie;
         global $_MyCookieUser;
-        $acessos = func_get_args();
-        if (!in_array($_MyCookieUser->getTipoUsuario()->getFlag(), $acessos))
-            header('location: ' . $_MyCookie->getSite() . 'administrador/');
+        $accessLevel = func_get_args();
+        if (!in_array($_MyCookieUser->getAccountType()->getFlag(), $accessLevel))
+            header('location: ' . $_MyCookie->getSite() . 'administrator/');
     }
 
-    public static function ExibirTabelaUsuariosPorTipo($tipo) {
-        global $_MyCookie;
-        global $_MyCookieUser;
-        $usuarios = new TUsuario;
-        $usuarios = $usuarios->ListarTodosOnde("TipoUsuario_Id = $tipo");
-        $usuarios = $_MyCookie->sortObjects($usuarios, 'Nome', SORT_ASC);
-        $usuarios = $_MyCookie->sortObjects($usuarios, 'Status', SORT_DESC);
-        include('usuario.view.ui.table.gerenciar.php');
+    public static function ShowUserTableByType($accid) {
+        global $_MyCookie;        
+        $data = User::Select('u')->join('u.accountType', 'a')->where("a.id = ?1")->add('orderBy', 'u.name ASC, u.status DESC')
+                        ->setParameter(1, $accid)->getQuery()->execute();                
+        $_MyCookie->LoadView('user', 'Manage.table', $data);        
     }
 
     public static function Adicionar() {

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-29 13:16-0400\n"
+"POT-Creation-Date: 2014-05-04 09:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,42 +62,46 @@ msgid "Re-create database"
 msgstr ""
 
 #: src/view/build/build.php:53
+msgid "Cleaning cache"
+msgstr ""
+
+#: src/view/build/build.php:58
 msgid "Done!"
 msgstr ""
 
-#: src/view/build/build.php:57
+#: src/view/build/build.php:62
 msgid "JS output"
 msgstr ""
 
-#: src/view/build/build.php:61
+#: src/view/build/build.php:66
 msgid "CSS output"
 msgstr ""
 
-#: src/view/build/build.php:65
+#: src/view/build/build.php:70
 msgid "xGetText output"
 msgstr ""
 
-#: src/view/build/build.php:69
+#: src/view/build/build.php:74
 msgid "MsgFmt output"
 msgstr ""
 
-#: src/view/build/build.php:73
+#: src/view/build/build.php:78
 msgid "ORM output"
 msgstr ""
 
-#: src/view/build/build.php:85
+#: src/view/build/build.php:90
 msgid "Enter the building password"
 msgstr ""
 
-#: src/view/build/build.php:92
+#: src/view/build/build.php:97
 msgid "The password doesn't match"
 msgstr ""
 
-#: src/view/build/build.php:231
+#: src/view/build/build.php:250
 msgid "Do you really want to recreate database? (It will erase EVERYTHING!)"
 msgstr ""
 
-#: src/view/build/build.php:243
+#: src/view/build/build.php:262
 msgid "Your database was recreated."
 msgstr ""
 

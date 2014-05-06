@@ -2,7 +2,7 @@
 
 namespace controller\build;
 
-class BuildControl {
+class BuildController {
 
     const RJSFile = 'components/r.js';
     const BuildJSFile = 'components/build-js.js';
@@ -16,20 +16,24 @@ class BuildControl {
 
     public function Build() {
         global $_Async;
-        $_Async = true;        
+        $_Async = true;
         include('src/view/build/build.php');
     }
 
     public function CreateBuildJS() {
         /* @var $_MyCookie \lib\MyCookie */
+
         global $_MyCookie;
         if ($this->CheckPassword()) {
             $jsFilesId = array();
             $myCookieConfiguration = $_MyCookie->getMyCookieConfiguration();
-            $fp = fopen(BuildControl::BuildJSFile, 'w+');
+            unlink(BuildController::BuildJSFile);
+            $fp = fopen(BuildController::BuildJSFile, 'w+');
             fwrite($fp, "({\n");
             fwrite($fp, "   baseUrl: \"../\",\n");
             fwrite($fp, "   paths: {\n");
+            fwrite($fp, "       mycookie: \"components/mycookie\",\n");
+            array_push($jsFilesId, 'mycookie');
             if ($myCookieConfiguration->build->use_jquery) {
                 fwrite($fp, "       jquery: \"vendor/sheillendra/metro-bootstrap/docs/jquery-1.8.0\",\n");
                 array_push($jsFilesId, 'jquery');
@@ -44,11 +48,11 @@ class BuildControl {
                     array_push($jsFilesId, 'bootstrap');
                 }
             }
-            foreach ($this->SeekFiles(BuildControl::SourceJS, 'js') as $js) {
+            foreach ($this->SeekFiles(BuildController::SourceJS, 'js') as $js) {
                 $filePath = explode('.', $js);
                 $fileName = explode('/', $filePath[0]);
                 array_push($jsFilesId, sprintf('%s_%s', array_pop($fileName), array_pop($fileName)));
-                fwrite($fp, sprintf("       %s: \"../%s\",\n", end($jsFilesId), $filePath[0]));
+                fwrite($fp, sprintf("       %s: \"%s\",\n", end($jsFilesId), $filePath[0]));
             }
             fwrite($fp, "   },\n");
             fwrite($fp, "   name: \"components/build-config\",\n");
@@ -63,7 +67,8 @@ class BuildControl {
 
     private function CreateBuildJSConfig($jsFilesId) {
         if ($this->CheckPassword()) {
-            $fp = fopen(BuildControl::BuildJSConfigFile, 'w+');
+            unlink(BuildController::BuildJSConfigFile);
+            $fp = fopen(BuildController::BuildJSConfigFile, 'w+');
             fwrite($fp, 'require([');
             foreach ($jsFilesId as $jsId) {
                 fwrite($fp, "'$jsId',");
@@ -73,6 +78,14 @@ class BuildControl {
         } else {
             echo 'The password does\'t match';
         }
+    }
+
+    public function CleanCache() {
+        unlink(BuildController::BuildCSSConfigFile);
+        unlink(BuildController::BuildCSSFile);
+        unlink(BuildController::BuildJSConfigFile);
+        unlink(BuildController::BuildJSFile);
+        array_map('unlink', glob('cache/*'));
     }
 
     private function SeekFiles($path, $extension = '*') {
@@ -106,11 +119,26 @@ class BuildControl {
     }
 
     public function CreateBuildCSS() {
+        if ($this->CheckPassword()) {
+            unlink(BuildController::BuildCSSFile);
+            $fp = fopen(BuildController::BuildCSSFile, 'w+');
+            fwrite($fp, "({\n");
+            fwrite($fp, "   cssIn: \"build-config.css\",\n");
+            fwrite($fp, "   out: \"bundle.css\",\n");
+            fwrite($fp, "   optimizeCss: \"default\"\n");
+            fwrite($fp, "})");
+            fclose($fp);
+            $this->CreateBuildCSSConfig();
+        }
+    }
+
+    private function CreateBuildCSSConfig() {
         /* @var $_MyCookie \lib\MyCookie */
         global $_MyCookie;
         if ($this->CheckPassword()) {
             $myCookieConfiguration = $_MyCookie->getMyCookieConfiguration();
-            $fp = fopen(BuildControl::BuildCSSConfigFile, 'w+');
+            unlink(BuildController::BuildCSSConfigFile);
+            $fp = fopen(BuildController::BuildCSSConfigFile, 'w+');
             if ($myCookieConfiguration->build->use_bootstrap) {
                 if ($myCookieConfiguration->build->use_metro) {
                     fwrite($fp, "@import url('../vendor/sheillendra/metro-bootstrap/css/metro-bootstrap.css');");
@@ -120,7 +148,7 @@ class BuildControl {
                     fwrite($fp, "\n@import url('../vendor/twbs/bootstrap/dist/css/bootstrap-theme.css');");
                 }
             }
-            foreach ($this->SeekFiles(BuildControl::SourceCSS, 'css') as $css) {
+            foreach ($this->SeekFiles(BuildController::SourceCSS, 'css') as $css) {
                 fwrite($fp, "\n@import url('../$css');");
             }
             fclose($fp);
@@ -132,9 +160,9 @@ class BuildControl {
     public function BuildJS() {
         $check = 0;
         if ($this->CheckPassword()) {
-            system(sprintf("node %s -o %s", BuildControl::RJSFile, BuildControl::BuildJSFile), $check);
+            system(sprintf("node %s -o %s", BuildController::RJSFile, BuildController::BuildJSFile), $check);
             if ($check !== 0) {
-                system(sprintf("nodejs %s -o %s", BuildControl::RJSFile, BuildControl::BuildJSFile), $check);
+                system(sprintf("nodejs %s -o %s", BuildController::RJSFile, BuildController::BuildJSFile), $check);
                 if ($check !== 0) {
                     include('src/view/build/node-run.php');
                 }
@@ -147,9 +175,9 @@ class BuildControl {
     public function BuildCSS() {
         $check = 0;
         if ($this->CheckPassword()) {
-            system(sprintf("node %s -o %s", BuildControl::RJSFile, BuildControl::BuildCSSFile), $check);
+            system(sprintf("node %s -o %s", BuildController::RJSFile, BuildController::BuildCSSFile), $check);
             if ($check !== 0) {
-                system(sprintf("nodejs %s -o %s", BuildControl::RJSFile, BuildControl::BuildCSSFile), $check);
+                system(sprintf("nodejs %s -o %s", BuildController::RJSFile, BuildController::BuildCSSFile), $check);
                 if ($check !== 0) {
                     include('src/view/build/node-run.php');
                 }
@@ -200,19 +228,20 @@ class BuildControl {
      */
     public function GeneratePortableObjects() {
         if ($this->CheckPassword()) {
-            $fHandle = opendir(BuildControl::SourceViews);
+            $fHandle = opendir(BuildController::SourceViews);
+            array_map('unlink', glob(sprintf('%s/_po/*', BuildController::SourceLang)));
             while (($file = readdir($fHandle)) !== false) {
                 if ($file !== '.' && $file !== '..') {
-                    if (count(scandir(sprintf('%s/%s', BuildControl::SourceViews, $file))) > 2) {                        
-                        system(sprintf('xgettext -d %s -p %s/_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildControl::SourceLang, BuildControl::SourceViews, $file), $check);                        
+                    if (count(scandir(sprintf('%s/%s', BuildController::SourceViews, $file))) > 2) {
+                        system(sprintf('xgettext -d %s -p %s/_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildController::SourceLang, BuildController::SourceViews, $file), $check);
                         if ($check !== 0) {
-                            system(sprintf('gettext -d %s -build/p %s_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildControl::SourceLang, BuildControl::SourceViews, $file), $check);
+                            system(sprintf('gettext -d %s -p %s/_po -k__ -k_e -k_n:1,2 -k_en:1,2 %s/%s/*.php', $file, BuildController::SourceLang, BuildController::SourceViews, $file), $check);
                             if ($check !== 0) {
                                 include('src/build/view/xgettext-run.php');
                                 return;
                             }
                         }
-                        $fileName = sprintf('%s/_po/%s.po', BuildControl::SourceLang, $file);
+                        $fileName = sprintf('%s/_po/%s.po', BuildController::SourceLang, $file);
                         if (file_exists($fileName)) {
                             $c = file_get_contents($fileName);
                             $c = str_replace('charset=CHARSET', 'charset=UTF-8', $c);
@@ -230,9 +259,10 @@ class BuildControl {
      */
     public function GenerateMachineObjects() {
         if ($this->CheckPassword()) {
-            foreach ($this->SeekFiles(BuildControl::SourceLang, 'po') as $po) {
+            array_map('unlink', glob(sprintf('%s/*.mo', BuildController::SourceLang)));
+            foreach ($this->SeekFiles(BuildController::SourceLang, 'po') as $po) {
                 if (strpos($po, '_po') === false) {
-                    $filePath = explode('.', $po);                      
+                    $filePath = explode('.', $po);
                     system(sprintf('msgfmt %s -o %s.mo', $po, $filePath[0]), $check);
                     if ($check > 1) {
                         include('src/build/view/msgfmt-run.php');
@@ -240,7 +270,6 @@ class BuildControl {
                     }
                 }
             }
-            system(sprintf('chmod 755 %s/ -R', BuildControl::SourceLang));
             echo 'OK';
         }
     }

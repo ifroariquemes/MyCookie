@@ -39,7 +39,7 @@ class I18n {
     }
 
     private function BindDomains() {
-        $fHandle = opendir('modules');
+        $fHandle = opendir('src/config');
         while (($file = readdir($fHandle)) !== false) {
             if ($file !== '.' && $file !== '..') {
                 $fileInfo = explode('.', $file);

@@ -28,7 +28,7 @@ global $_MyCookie;
                         <input type="password" class="form-control" placeholder="<?php _e('Password', 'administrator') ?>" name="password" id="password" required="required">
                     </div><br>
                     <p class="text-center">
-                        <button type="submit" class="btn btn-lg btn-primary"><?php _e('Sign in', 'administrator') ?></button>
+                        <button type="submit" class="btn btn-lg btn-primary"><i class="fa fa-sign-in"></i> <?php _e('Sign in', 'administrator') ?></button>
                     </p>
                 </form>                                
             </div>            

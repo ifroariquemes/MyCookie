@@ -2,6 +2,8 @@
 
 namespace model\administrator\menu;
 
+use lib\util\module\Module;
+
 class Menu {
 
     private $name;
@@ -9,11 +11,14 @@ class Menu {
     private $icon;
     private $color;
 
-    public function __construct($name, $directory, $icon, $color) {
-        $this->name = $name;
+    public function __construct($directory, Module $moduleConfig) {
+        $this->name = $moduleConfig->getName();
         $this->directory = $directory;
-        $this->icon = $icon;
-        $this->color = $color;
+        $this->icon = $moduleConfig->getTile()->getIcon();
+        $this->color = $moduleConfig->getTile()->getColor();
+        if (empty($this->color)) {
+            $this->color = $moduleConfig->getTile()->getAllowedColors()[rand(1, 29)];
+        }
     }
 
     public function getName() {
@@ -29,15 +34,8 @@ class Menu {
     }
 
     public function getColor() {
-        if (empty($this->color)) {
-            $this->color = $this->RandomColor();
-        }
-        return $this->color;
-    }
 
-    private function RandomColor() {
-        $colors = array('blue', 'green', 'red', 'yellow', 'pink', 'purple', 'lime', 'magenta', 'teal', 'turquoise', 'green-sea', 'emerald', 'nephritis', 'peter-river', 'belize-hole', 'amethyst', 'wisteria', 'wet-asphalt', 'midnight-blue', 'sun-flower', 'orange', 'carrot', 'pumpkin', 'alizarin', 'pomegranate', 'clouds', 'silver', 'concrete', 'asbestos');
-        return $colors[rand(1, 29)];
+        return $this->color;
     }
 
 }

@@ -3,20 +3,20 @@
 namespace controller\administrator;
 
 use lib\util\Router;
-use controller\user\UserControl;
+use controller\user\UserController;
 use model\user\accountType\AccountType;
 
-class AdministratorControl extends Router {
+class AdministratorController extends Router {
 
     private $userControl;
 
     public function __construct() {
-        $this->userControl = new UserControl();
+        $this->userControl = new UserController();
     }
 
     public static function VerifyAdministratorLoggedIn() {
-        if (!UserControl::isAdministratorLoggedIn()) {
-            AdministratorControl::ShowLogin();
+        if (!UserController::isAdministratorLoggedIn()) {
+            AdministratorController::ShowLogin();
             exit;
         }
     }
@@ -26,7 +26,7 @@ class AdministratorControl extends Router {
         global $_MyCookie;
         $account = AccountType::Select('a')->getQuery()->execute();
         if (count($account) === 0) {
-            UserControl::FirstRun();             
+            UserController::FirstRun();             
         }
         $_MyCookie->LoadView('administrator', 'Login');
         //unset($_SESSION[MyCookie::MessageSession]);
@@ -49,7 +49,7 @@ class AdministratorControl extends Router {
             echo $view;
         } else {
             ob_start();
-            $_MyCookie->LoadTemplate('administrator', 'Dashboard.tmpl', $view);            
+            $_MyCookie->LoadTemplate('administrator', 'Template', $view);            
             $page = ob_get_contents();
             ob_end_clean();
             $_Cache->doCache($page);
