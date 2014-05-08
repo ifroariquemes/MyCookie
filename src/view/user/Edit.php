@@ -13,7 +13,7 @@ $user = $data['user'];
     <div class="col-lg-6">
         <div class="panel panel-default">
             <div class="panel-body">
-                <form name="FrmEdit" id="FrmEdit" role="form" onsubmit="return user.submit()">
+                <form name="FrmEdit" id="FrmEdit" role="form" onsubmit="user.submit(); return false;">
                     <fieldset>
                         <div class="form-group">
                             <label for="textName"><?php _e('Name', 'user') ?>*:</label>                            
@@ -55,14 +55,14 @@ $user = $data['user'];
             </div>
         </div>        
     </div>
-    <?php if ($user->getStatus() != 0) : ?>
+    <?php if ($user->getId()) : ?>
         <div class="col-lg-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title"><?php _e('Want to change the password?', 'user') ?></h3>
                 </div>
                 <div class="panel-body">
-                    <form name="FrmEditPassword" id="FrmEditPassword" onsubmit="user.changePassword()">
+                    <form name="FrmEditPassword" id="FrmEditPassword" onsubmit="user.changePassword(); return false;">
                         <div class="form-group">
                             <label for="textActualPassword"><?php _e('Password', 'user') ?></label>                            
                             <input required="required" type="password" name="actualPassword" id="textActualPassword" class="form-control" value="">                            
@@ -100,7 +100,7 @@ $user = $data['user'];
     function User() {
 
         this.submit = function() {
-            var msg = MyCookieJS.ExecutarAcao('user/save', $('#FrmEdit').serialize(), true);
+            var msg = MyCookieJS.execute('user/save', $('#FrmEdit').serialize(), false);
             if (msg !== '') {
                 alert(msg);
             }
@@ -108,8 +108,7 @@ $user = $data['user'];
                 MyCookieJS.alert('Usuário salvo com sucesso!', function() {
                     MyCookieJS.goto('administrator/user');
                 });
-            }
-            return false;
+            }            
         };
     }
 

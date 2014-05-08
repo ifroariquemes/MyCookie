@@ -152,15 +152,15 @@ class UserController {
         $_MyCookie->LoadView('user', 'Edit', array('action' => 'Add', 'user' => new User));
     }
 
-    public static function Editar() {
+    public static function Edit() {
         global $_MyCookie;
         global $_MyCookieUser;
-        $usuario = new TUsuario;
-        $usuario = $usuario->ListarPorId($_MyCookie->getURLVariables(2));
-        if ($_MyCookieUser->getId() != $usuario->getId())
-            TUsuarioControl::VerificarNivelAcesso('ADMINISTRADOR');
-        $acao = 'Editar';
-        include('usuario.view.edicao.php');
+        $user = User::Select('u')->where('u.id =  ?1')
+                        ->setParameter(1, $_MyCookie->getURLVariables(2))->getQuery()->getSingleResult();        
+        if ($_MyCookieUser->getId() != $user->getId()) {
+            UserController::VerifyAccessLevel('ADMINISTRATOR');
+        }
+        $_MyCookie->LoadView('user', 'Edit', array('action' => 'Edit', 'user' => $user));
     }
 
     public static function VerificarSenhaAtual() {

@@ -178,21 +178,19 @@ function TMyCookieJS() {
             if (moduleAction === null) {
                 throw 1;
             }
-            isAsync = (isAsync === null) ? false : isAsync;
-            requestType = (requestType === null) ? 'POST' : requestType;
+            isAsync = (typeof (isAsync) === 'boolean') ? isAsync : false;            
+            requestType = (typeof (requestType) === 'string') ? requestType : 'POST';
             $.ajax({
                 async: isAsync,
                 type: requestType,
                 url: self.mountURL(moduleAction, false),
                 data: data,
                 success: function(executionReturn) {
-                    returning = executionReturn;
+                    returning = executionReturn;                    
                 }
 
             });
-            if (!isAsync) {
-                return returning;
-            }
+            return returning;
         }
         catch (error) {
             MyCookieJSErrors.Handle(error);
