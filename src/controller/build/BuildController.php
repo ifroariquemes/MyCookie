@@ -160,7 +160,7 @@ class BuildController {
     public function BuildJS() {
         $check = 0;
         if ($this->CheckPassword()) {
-            system(sprintf("node %s -o %s", BuildController::RJSFile, BuildController::BuildJSFile), $check);
+            system(sprintf("node %s -o %s optimize=none", BuildController::RJSFile, BuildController::BuildJSFile), $check);
             if ($check !== 0) {
                 system(sprintf("nodejs %s -o %s", BuildController::RJSFile, BuildController::BuildJSFile), $check);
                 if ($check !== 0) {

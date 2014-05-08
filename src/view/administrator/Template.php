@@ -19,6 +19,7 @@ global $_MyCookieUser;
         <meta name="viewport" content="width=device-width">
         <title><?php _e('administrative panel', 'user') ?></title>                        
         <?php $_MyCookie->CSSBundle() ?>
+        <?php $_MyCookie->RequireJS() ?>
         <style type="text/css"> 
             #admin-body {
                 padding-bottom: 70px;
@@ -74,7 +75,7 @@ global $_MyCookieUser;
             <div class="row">
                 <?php if ($_MyCookie->getModule() == 'administrator') : ?>
                     <div class="col-lg-6 col-sm-6 col-xs-5">
-                        <h1><?php _e('administrative panel', 'user') ?></h1>
+                        <h1><?php _e('administrative panel', 'administrator') ?></h1>
                     </div>
                 <?php else : ?>                
                     <div class="col-lg-1 col-sm-1 col-xs-2">
@@ -84,7 +85,7 @@ global $_MyCookieUser;
                     </div>
                     <div class="col-lg-5 col-sm-5 col-xs-5">
                         <div id="header-container">                            
-                            <h4><?php _e('administrative panel', 'user') ?></h4>
+                            <h4><?php _e('administrative panel', 'administrator') ?></h4>
                             <div class="dropdown">
                                 <a class="header-dropdown dropdown-toggle accent-color" data-toggle="dropdown" href="#" >
                                     <?php echo MenuControl::ListCurrentModuleName() ?>
@@ -104,9 +105,9 @@ global $_MyCookieUser;
                         <i class="fa fa-4x fa-user"></i>
                     </a>                    
                     <ul id="profile-dropdown" class="dropdown-menu" role="menu">
-                        <li><a href="#"><?php _e('Edit profile', 'user') ?></a></li>                       
+                        <li><a href="#"><?php _e('Edit profile', 'administrator') ?></a></li>                       
                         <li class="divider"></li>
-                        <li><a href="user/logout"><i class="fa fa-sign-out"></i> <?php _e('Sign out', 'user') ?></a></li>
+                        <li><a href="user/logout"><i class="fa fa-sign-out"></i> <?php _e('Sign out', 'administrator') ?></a></li>
                     </ul>
                 </div>                                                        
             </div>        

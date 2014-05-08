@@ -2,161 +2,166 @@
  * Principal classe JavaScript do CMS MyCookie
  * @class TMyCookieJS
  */
-function MyCookieJS() {
+function TMyCookieJS() {
 
     var self = this;
+    var openingPopup = false;
+    var confirmResult = false;
 
-    var abrindoPopup = false;
-
-    /**
-     * Objeto para tratamento de erros ocorridos na execucao de qualquer
-     * funcao desta classe
-     * @private
-     * @type TMyCookieJSErros
+    /**          
+     * @property {TMyCookieJSErrors} MyCookieJSErrors Handles errors          
      */
-    var MyCookieJSErros = new TMyCookieJSErros();
+    var MyCookieJSErrors = new TMyCookieJSErrors();
 
     /**
-     * Realiza montagem de uma URL baseado no modulo/submodulo/acao requisitados
-     * @param {string} moduloAcao Referencia modulos, submodulos e acao no MyCookie
-     * @param {string} template If will load with template or not
+     * Mounts a URL based on requested module/submodule/action
+     * @param {string} moduleAction References modules, submodules and action in MyCookie
+     * @param {string} withTemplate If will load with template or not
      * @return {string} Mounted URL
-     * @example MontarURLAcao('noticia/listar');
-     */    
-    this.MontarURLAcao = function(moduloAcao, template) {
-        return sprintf('%s%s/%s', self.getSite(), moduloAcao, (template) ? '' : '?async');
+     * @example mountURL('news/list');
+     */
+    this.mountURL = function(moduleAction, withTemplate) {
+        return String.format('{0}{1}/{2}', self.getSite(), moduleAction, (withTemplate) ? '' : '?async');
     };
 
     /**
-     * @return Acao princial executada pelo MyCookie
+     * @return {string} Main action being executed at MyCookie
      */
-    this.getAcao = function() {
+    this.getAction = function() {
         return MYCOOKIEJS_ACTION;
-    }
+    };
 
     /**
-     * @return Modulo principal executado pelo MyCookie
+     * @return {string} Main module being executed at MyCookie
      */
-    this.getModulo = function() {
+    this.getModule = function() {
         return MYCOOKIEJS_MODULE;
     }
 
     /**
-     * @return Modulo auxiliar do modulo principal executado pelo MyCookie
+     * @return {string} Main auxiliar module being executed at MyCookie
      */
-    this.getModuloAuxiliar = function() {
+    this.getAuxiliarModule = function() {
         return MYCOOKIEJS_AUXILIARMODULE;
     }
 
     /**
-     * @return Namespace do modulo principal executado pelo MyCookie
+     * @return {string} Namespace of main module being executed at MyCookie
      */
     this.getNamespace = function() {
         return MYCOOKIEJS_NAMESPACE;
     }
 
     /**
-     * @return URL principal do site (sem variaveis e modulos)
+     * @return {string} Base URL from project
      */
     this.getSite = function() {
         return MYCOOKIEJS_SITE;
     }
 
-
-    this.AbrirPopupEstatico = function(nomePopup, conteudo) {
-
-        var divPopup, PopupAnterior, idPopup;
-
-        try {
-
-            abrindoPopup = true;
-
-            PopupAnterior = $('.modal.in').attr('id');
-
-            if (PopupAnterior != null)
-                self.FecharPopup(PopupAnterior, abrindoPopup);
-
-            else
-                $('body').append('<div class="modal-backdrop fade in"></div>');
-
-            divPopup = sprintf('<div class="modal fade hide" id="%s"><div class="hide idPopupAnterior">%s</div></div>', nomePopup, PopupAnterior);
-
-            idPopup = sprintf('#%s', nomePopup);
-
-            $(idPopup).remove();
-
-            $('body').append(divPopup);
-
-            $(idPopup).append(conteudo);
-
-            $(idPopup).modal({
-                backdrop: false,
-                keyboard: false,
-                show: true
-
-            });
-
-            $(idPopup).on('hidden', function() {
-
-                VoltarPopup($(this).attr('id'));
-
-            });
-
+    /**
+     * Shows a popup with some content
+     * @param {string} popupId The popup id
+     * @param {string} content The content to show
+     * @returns {Boolean}
+     */
+    this.showStaticPopup = function(popupId, content) {
+        var modal, modaldialog, modalcontent, modalprevious, modalbackdrop, previousPopupId, idPopup;
+        /*try {*/
+        openingPopup = true;
+        previousPopupId = $('.modal.in').attr('id');
+        if (typeof (previousPopupId) === 'string' && previousPopupId !== '') {
+            self.closePopup(previousPopupId, openingPopup);
         }
-        catch (erro) {
-
-            MyCookieJSErros.TratarErro(erro);
-
-            return false;
-
+        else if ($('.modal-backdrop').length === 0) {
+            modalbackdrop = document.createElement('div');
+            $(modalbackdrop)
+                    .addClass('modal-backdrop')
+                    .addClass('fade')
+                    .addClass('in');
+            $('body').append(modalbackdrop);
         }
 
-    }
+        $(popupId).remove();
+
+        modalcontent = document.createElement('div');
+        $(modalcontent)
+                .addClass('modal-content')
+                .append(content);
+
+        modaldialog = document.createElement('div');
+        $(modaldialog)
+                .addClass('modal-dialog')
+                .append(modalcontent);
+
+        modalprevious = document.createElement('div');
+        $(modalprevious)
+                .addClass('hidden')
+                .addClass('idPopupAnterior')
+                .append(previousPopupId);
+
+        modal = document.createElement('div');
+        $(modal)
+                .addClass('modal')
+                .addClass('fade')
+                .attr('role', 'modal')
+                .attr('tab-index', '-1')
+                .attr('id', popupId)
+                .append(modaldialog)
+                .append(modalprevious)
+                .on('hidden.bs.modal', function() {
+                    backtoPopup($(this).attr('id'));
+                });
+
+        $('body').append(modal);
+
+        $(modal).modal({
+            backdrop: false,
+            keyboard: false,
+            show: true
+        });
+        return true;
+        /*}
+         catch (error) {
+         MyCookieJSErrors.Handle(error);
+         return false;
+         }*/
+    };
 
 
     /**
-     * Abre uma janela popup sobre o conte�do exibido mantando o foco sobre si
-     * bloqueando o conteudo exibido antes de sua abertura
-     * @param string nomePopup: Nome da janela que sera criada
-     * @param integer larguraPopup: Largura em pixel da caixa popup
-     * @param string moduloAcao: Referencia modulos, submodulos e acao no MyCookie
-     * @param string dados: Variaveis e valores ordenados no formato de URL
-     * que serao passados como parametro para o modulo/submodulo requisitado
-     * @param string tipoEncapsulamento: Define o tipo de encapsulmento dos dados: GET ou POST(padrao, se nulo)
-     * @example _MyCookie.AbrirPopupDinamico('FrmNoticia',500,'noticias/editar','id=1','POST');
+     * Shows a popup with some content loaded from server     
+     * @param {string} popupId The popup id
+     * @param {string} moduleAction References module/submodule/action at MyCookie
+     * @param {string} data Variables and values URL formatted     
+     * @param {string} requestType Type of request: GET or POST(default)
+     * @example MyCookieJS.showDynamicPopup('PU_News','news/edit','id=1','POST');
      */
-    this.AbrirPopupDinamico = function(nomePopup, moduloAcao, dados, tipoEncapsulamento) {
-
-        try {
-
-            if (moduloAcao == null)
-                throw 2;
-
-            tipoEncapsulamento = (tipoEncapsulamento == null) ? 'POST' : tipoEncapsulamento;
-
+    this.showDynamicPopup = function(popupId, moduleAction, data, requestType) {
+        /*try {
+         if (typeof (moduleAction) !== 'string') {
+         throw 2;
+         }  */
+        requestType = (typeof (requestType) !== 'string') ? 'POST' : requestType;
+        self.showWaitMessage('');
+        setTimeout(function() {
             $.ajax({
                 async: false,
-                type: tipoEncapsulamento,
-                url: self.MontarURLAcao(moduloAcao, false),
-                data: dados,
-                success: function(retorno) {
-
-                    self.AbrirPopupEstatico(nomePopup, retorno);
-
+                type: requestType,
+                url: self.mountURL(moduleAction, false),
+                data: data,
+                success: function(returning) {
+                    self.closeWaitMessage();
+                    self.showStaticPopup(popupId, returning);
                 }
-
             });
-
-        }
-        catch (erro) {
-
-            MyCookieJSErros.TratarErro(erro);
-
-            return false;
-
-        }
-
-    }
+        }, 500);
+        /*}
+         catch (erro) {
+         MyCookieJSErrors.Handle(erro);
+         return false;
+         }*/
+    };
 
 
     /**
@@ -166,46 +171,33 @@ function MyCookieJS() {
      * @param bool retornar: Define se a funcao deve retornar o resultado da acao. Por padrao a funcao nao retornara qualquer resultado.
      * @param bool assincrono Define se a execucao da acao de ser assincrona. Por padrao a funcao e sincrona.
      * @param string tipoEncapsulamento: Define o tipo de encapsulmento dos dados: GET ou POST(padrao, se nulo)
-     * @example _MyCookie.ExecutarAcao('noticias/deletar','id=1',true,'POST');
-     */
-    this.ExecutarAcao = function(moduloAcao, dados, retornar, assincrono, tipoEncapsulamento) {
-
-        var retorno;
-
+     * @example _MyCookie.ExecutarAcao('noticias/deletar','id=1',true,'POST');      */
+    this.execute = function(moduleAction, data, isAsync, requestType) {
+        var returning;
         try {
-
-            if (moduloAcao == null)
+            if (moduleAction === null) {
                 throw 1;
-
-            retornar = (retornar == null) ? false : retornar;
-
-            assincrono = (assincrono == null) ? false : assincrono;
-
-            tipoEncapsulamento = (tipoEncapsulamento == null) ? 'POST' : tipoEncapsulamento;
-
+            }
+            isAsync = (isAsync === null) ? false : isAsync;
+            requestType = (requestType === null) ? 'POST' : requestType;
             $.ajax({
-                async: assincrono,
-                type: tipoEncapsulamento,
-                url: self.MontarURLAcao(moduloAcao, false),
-                data: dados,
-                success: function(retornoExecucao) {
-                    retorno = retornoExecucao
+                async: isAsync,
+                type: requestType,
+                url: self.mountURL(moduleAction, false),
+                data: data,
+                success: function(executionReturn) {
+                    returning = executionReturn;
                 }
 
             });
-
-            if (retornar)
-                return retorno;
-
+            if (!isAsync) {
+                return returning;
+            }
         }
-        catch (erro) {
-
-            MyCookieJSErros.TratarErro(erro);
-
+        catch (error) {
+            MyCookieJSErrors.Handle(error);
             return false;
-
         }
-
     }
 
     /**
@@ -213,125 +205,79 @@ function MyCookieJS() {
      * @param string nomePopup: Nome da janela que sera fechada
      * @example _MyCookie.FecharPopup('FrmNoticia');
      */
-    this.FecharPopup = function(nomePopup, estaAbrindoPopup) {
+    this.closePopup = function(nomePopup, estaAbrindoPopup) {
 
         var idPopup, PopupAnterior, idPopupAnterior;
 
-        abrindoPopup = (estaAbrindoPopup != null) ? estaAbrindoPopup : false;
+        openingPopup = (estaAbrindoPopup != null) ? estaAbrindoPopup : false;
 
         nomePopup = (nomePopup == null) ? $('.modal.in').attr('id') : nomePopup;
 
-        idPopup = sprintf('#%s', nomePopup);
+        idPopup = String.format('#{0}', nomePopup);
 
         $(idPopup).modal('hide');
 
     }
 
-    this.FecharTodasPopups = function() {
-
+    this.closeAllPopups = function() {
         $('.modal').remove();
-
         $('.modal-backdrop').remove();
-
     }
 
-    this.IrParaPopup = function(nomePopup) {
+    this.gotoPopup = function(nomePopup) {
 
-        self.FecharPopup(null, true);
+        self.closePopup(null, true);
 
         setTimeout(function() {
 
-            abrindoPopup = false
+            openingPopup = false
 
             var idPopup = sprintf('#%s', nomePopup);
-
             $(idPopup).modal('show');
 
         }, 700);
 
     }
 
-    var VoltarPopup = function(PopupAtual) {
-
-        if (!abrindoPopup) {
-
+    var backtoPopup = function(PopupAtual) {
+        if (!openingPopup) {
             var idPopupAtual, PopupAnterior, idPopupAnterior;
-
-            idPopupAtual = sprintf('#%s', PopupAtual);
-
+            idPopupAtual = '#' + PopupAtual;
             PopupAnterior = $(idPopupAtual).children('.idPopupAnterior').html();
-
-            idPopupAnterior = sprintf('#%s', PopupAnterior);
-
-            if (PopupAnterior != 'undefined')
+            idPopupAnterior = '#' + PopupAnterior;
+            if (PopupAnterior !== '')
                 $(idPopupAnterior).modal('show');
-
             else if ($('.modal.in').attr('id') == null)
                 $('.modal-backdrop').remove();
-
         } else
-            abrindoPopup = false;
-
+            openingPopup = false;
     }
 
     /**
-     * Redireciona o navegador para um modulo/submodulo/acao especificos
-     * @param string moduloAcao: Referencia modulos, submodulos e acao no MyCookie
+     * Redireciona o navegador para um modulo/submodulo/acao especificos      * @param string moduloAcao: Referencia modulos, submodulos e acao no MyCookie
      * @example _MyCookie.IrPara('administrador');
      */
-    this.IrPara = function(moduloAcao) {
-
+    this.goto = function(moduleAction) {
         try {
-
-            if (moduloAcao == null)
+            if (moduleAction === null)
                 throw 3;
-
-            location.href = self.MontarURLAcao(moduloAcao, true);
-
+            location.href = self.mountURL(moduleAction, true);
         }
-        catch (erro) {
-
-            MyCookieJSErros.TratarErro(erro);
-
+        catch (error) {
+            MyCookieJSErrors.Handle(error);
             return false;
-
         }
-
     }
 
-    this.Validar = function(restricoes, DOM, mensagem) {
-
-        var bsUtilForm = new BootstrapUtilForm();
-
-        bsUtilForm.mudarEstado(DOM, 'normal');
-
-        if (restricoes) {
-
-            bsUtilForm.mudarEstado(DOM, 'error', mensagem);
-
-            $(DOM).focus();
-
-            return false;
-
-        }
-
-        return true;
-
+    this.showWaitMessage = function(msg) {
+        self.showStaticPopup('aguarde-box', '<h1 class="align-center">Aguarde<h1><h3 class="align-center">...</h3><h3 class="align-center">' + msg + '</h3>');
     }
 
-    this.AbrirAguarde = function(msg) {
-
-        self.AbrirPopupEstatico('aguarde-box', '<h1 class="align-center">Aguarde<h1><h3 class="align-center">...</h3><h3 class="align-center">' + msg + '</h3>');
-
+    this.closeWaitMessage = function() {
+        $('#aguarde-box').remove();
     }
 
-    this.FecharAguarde = function() {
-
-        self.FecharPopup('aguarde-box');
-
-    }
-
-    this.MASCARA_CEP = function(id) {
+    this.maskCEP = function(id) {
         $(id).bind('keyup', function(e) {
             var v = $(this).val()
             v = v.replace(/D/g, "")
@@ -340,7 +286,7 @@ function MyCookieJS() {
         });
     }
 
-    this.MASCARA_CNPJ = function(id) {
+    this.maskCNPJ = function(id) {
         $(id).bind('keyup', function(e) {
             var v = $(this).val()
             v = v.replace(/\D/g, "")
@@ -352,7 +298,7 @@ function MyCookieJS() {
         });
     }
 
-    this.MASCARA_CPF = function(id) {
+    this.maskCPF = function(id) {
         $(id).bind('keyup', function(e) {
             var v = $(this).val()
             v = v.replace(/\D/g, "")
@@ -363,7 +309,7 @@ function MyCookieJS() {
         });
     }
 
-    this.MASCARA_Data = function(id) {
+    this.maskDate_ptBR = function(id) {
         $(id).bind('keyup', function(e) {
             var v = $(this).val()
             v = v.replace(/\D/g, "")
@@ -373,7 +319,7 @@ function MyCookieJS() {
         });
     }
 
-    this.MASCARA_Hora = function(id) {
+    this.maskTime = function(id) {
         $(id).bind('keyup', function(e) {
             var v = $(this).val()
             v = v.replace(/\D/g, "")
@@ -381,8 +327,7 @@ function MyCookieJS() {
             $(this).val(v)
         });
     }
-
-    this.MASCARA_Moeda = function(id) {
+    this.maskMoney_ptBR = function(id) {
         $(id).bind('keypress', function(e) {
             var objTextBox = this;
             var SeparadorMilesimo = '.';
@@ -433,7 +378,7 @@ function MyCookieJS() {
         $(id).keypress();
     }
 
-    this.MASCARA_Telefone = function(id) {
+    this.maskPhone = function(id) {
         $(id).bind('keyup', function(e) {
             var v = $(this).val()
             v = v.replace(/\D/g, "")
@@ -442,8 +387,7 @@ function MyCookieJS() {
             $(this).val(v)
         });
     }
-
-    this.MASCARA_URL = function(id) {
+    this.maskURL = function(id) {
         $(id).bind('keyup', function(e) {
             var v = $(this).val()
             v = v.replace(/^http:\/\/?/, "")
@@ -462,10 +406,151 @@ function MyCookieJS() {
         });
     }
 
+    this.getConfirmResult = function() {
+        return confirmResult;
+    }
+
+    this.confirm = function(messageStr, onYes, onNo, closeAtConfirm) {
+        var modal, modaldialog, modalcontent, modalheader, header, modalbody, message, modalfooter, yesIcon, yesButton, noIcon, noButton;
+        var title = 'Confirmação';
+        closeAtConfirm = (typeof (closeAtConfirm) === 'boolean') ? closeAtConfirm : true;
+
+        header = document.createElement('h4');
+        $(header).append(title);
+
+        modalheader = document.createElement('div');
+        $(modalheader)
+                .addClass('modal-header')
+                .append(header);
+        message = document.createElement('p');
+        $(message).css('text-align', 'justify');
+        $(message).append(messageStr);
+
+        modalbody = document.createElement('div');
+        $(modalbody)
+                .addClass('modal-body')
+                .append(message);
+
+        yesIcon = document.createElement('i');
+        $(yesIcon).addClass('fa').addClass('fa-thumbs-up');
+
+        yesButton = document.createElement('button');
+        $(yesButton)
+                .addClass('btn btn-success')
+                .append(yesIcon)
+                .append(' Sim')
+                .click(function() {
+                    confirmResult = true;
+                    if (typeof (onYes) === 'function') {
+                        onYes();
+                    }
+                    if (closeAtConfirm) {
+                        MyCookieJS.closePopup('ConfirmBS');
+                        setTimeout(function() {
+                            $('#ConfirmBS').remove();
+                        }, 500);
+                    }
+                });
+
+        noIcon = document.createElement('i');
+        $(noIcon).addClass('fa').addClass('fa-thumbs-down');
+
+        noButton = document.createElement('button');
+        $(noButton)
+                .addClass('btn btn-danger')
+                .append(noIcon)
+                .append(' Não')
+                .click(function() {
+                    confirmResult = false;
+                    if (typeof (onNo) === 'function') {
+                        onNo();
+                    }
+                    if (closeAtConfirm) {
+                        MyCookieJS.closePopup('ConfirmBS');
+                        setTimeout(function() {
+                            $('#ConfirmBS').remove();
+                        }, 500);
+                    }
+                });
+
+        modalfooter = document.createElement('div');
+        $(modalfooter)
+                .addClass('modal-footer')
+                .css('text-align', 'center')
+                .append(yesButton)
+                .append(noButton);
+
+        modalcontent = document.createElement('div');
+        $(modalcontent)
+                .addClass('modal-content')
+                .append(modalheader)
+                .append(modalbody)
+                .append(modalfooter);
+
+        modaldialog = document.createElement('div');
+        $(modaldialog)
+                .addClass('modal-dialog')
+                .append(modalcontent);
+
+        modal = document.createElement('div');
+        $(modal)
+                .append(modalheader)
+                .append(modalbody)
+                .append(modalfooter)
+                .on('shown.bs.modal', function() {
+                    $(onYes).focus();
+                });
+
+        MyCookieJS.showStaticPopup('ConfirmBS', modal);
+    }
+
+    this.alert = function(mensagem, irParaPopup) {
+
+        titulo = 'Mensagem do sistema';
+        var content, modalheader, header, modalbody, message, modalfooter, okButton;
+        content = document.createElement('div');
+        modalheader = document.createElement('div');
+        $(modalheader).addClass('modal-header');
+        header = document.createElement('h4');
+        $(header).append(titulo);
+        $(modalheader).append(header);
+        modalbody = document.createElement('div');
+        $(modalbody).addClass('modal-body');
+        message = document.createElement('p');
+        $(message).css('text-align', 'justify');
+        $(message).append(mensagem);
+        $(modalbody).append(message);
+        modalfooter = document.createElement('div');
+        $(modalfooter).addClass('modal-footer');
+        $(modalfooter).css('text-align', 'center');
+        okButton = document.createElement('button');
+        $(okButton).addClass('btn btn-primary');
+        if (irParaPopup == null)
+            $(okButton).click(function() {
+                _Biscoito.FecharPopup('AlertBS')
+            });
+        else if (irParaPopup == true)
+            $(okButton).click(function() {
+                _Biscoito.FecharTodasPopups();
+            });
+        else if (is_string(irParaPopup))
+            $(okButton).click(function() {
+                _Biscoito.IrParaPopup(irParaPopup)
+            });
+        else
+            $(okButton).click(irParaPopup);
+        $(okButton).append('OK');
+        $(modalfooter).append(okButton);
+        $(content).append(modalheader);
+        $(content).append(modalbody);
+        $(content).append(modalfooter);
+        _Biscoito.AbrirPopupEstatico('AlertBS', content);
+    }
+
 }
 
-function TMyCookieJSErros() {
-    this.TratarErro = function(erro) {
+function TMyCookieJSErrors() {
+    this.Handle = function(erro) {
         switch (erro) {
             case 1:
                 alert('ERR-JS-001: Erro na parametrização de TMyCookieJS.ExecutarAcao');
@@ -477,4 +562,16 @@ function TMyCookieJSErros() {
     }
 }
 
-var MyCookieJS = new MyCookieJS();
+if (!String.format) {
+    String.format = function(format) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        return format.replace(/{(\d+)}/g, function(match, number) {
+            return typeof args[number] != 'undefined'
+                    ? args[number]
+                    : match
+                    ;
+        });
+    };
+}
+
+var MyCookieJS = new TMyCookieJS();

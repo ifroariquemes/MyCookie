@@ -6,90 +6,88 @@ use model\user\accountType\AccountType;
 
 class AccountTypeControl {
 
-  public function __call($acao, $args) {
+    public function __call($acao, $args) {
 
-    global $_Biscoito;
+        global $_Biscoito;
 
-    switch ($_Biscoito->getVariaveisDaURL(2)) {
+        switch ($_Biscoito->getVariaveisDaURL(2)) {
 
-      case 'editar':
+            case 'editar':
 
-        TTipoUsuarioControl::Editar($_Biscoito->getVariaveisDaURL(3));
+                TTipoUsuarioControl::Editar($_Biscoito->getVariaveisDaURL(3));
 
-        break;
+                break;
 
-      case 'excluir':
+            case 'excluir':
 
-        TTipoUsuarioControl::Excluir($_Biscoito->getVariaveisDaURL(3));
+                TTipoUsuarioControl::Excluir($_Biscoito->getVariaveisDaURL(3));
 
-        break;
+                break;
+        }
     }
-  }
 
-  public static function ListAccountTypes() {        
-    return AccountType::Select('a')->orderBy('a.name')->getQuery()->execute();
-  }
+    public static function ListAccountTypes() {
+        return AccountType::Select('a')->orderBy('a.name')->getQuery()->execute();
+    }
 
-  public static function Gerenciar() {
+    public static function ShowSelection($userid = null, $accid = null) {
+        global $_MyCookie;
+        global $_MyCookieUser;
+        $accountTypes = AccountType::Select('a')->orderBy('a.name')->getQuery()->execute();
+        $readonly = ($_MyCookieUser->getId() == $userid);
+        $_MyCookie->LoadView('user/accountType', 'Select', array('accountTypes' => $accountTypes, 'readonly' => $readonly, 'accid' => $accid));
+    }
 
-    $tiposUsuario = new TTipoUsuario();
+    public static function Gerenciar() {
 
-    $tiposUsuario = $tiposUsuario->ListarTodos();
+        $tiposUsuario = new TTipoUsuario();
 
-    include('tipousuario.view.gerenciar.php');
-  }
+        $tiposUsuario = $tiposUsuario->ListarTodos();
 
-  public static function Adicionar() {
+        include('tipousuario.view.gerenciar.php');
+    }
 
-    $tipoUsuario = new TTipoUsuario();
+    public static function Adicionar() {
 
-    $acao = 'Adicionar';
+        $tipoUsuario = new TTipoUsuario();
 
-    include('tipousuario.view.edicao.php');
-  }
+        $acao = 'Adicionar';
 
-  public static function Editar($id) {
+        include('tipousuario.view.edicao.php');
+    }
 
-    $tipoUsuario = new TTipoUsuario();
+    public static function Editar($id) {
 
-    $tipoUsuario = $tipoUsuario->ListarPorId($id);
+        $tipoUsuario = new TTipoUsuario();
 
-    $acao = 'Editar';
+        $tipoUsuario = $tipoUsuario->ListarPorId($id);
 
-    include('tipousuario.view.edicao.php');
-  }
+        $acao = 'Editar';
 
-  public static function Excluir($id) {
+        include('tipousuario.view.edicao.php');
+    }
 
-    $tipoUsuario = new TTipoUsuario();
+    public static function Excluir($id) {
 
-    $tipoUsuario = $tipoUsuario->ListarPorId($id);
+        $tipoUsuario = new TTipoUsuario();
 
-    $tipoUsuario->DeletarRegistro();
-  }
+        $tipoUsuario = $tipoUsuario->ListarPorId($id);
 
-  public function Salvar() {
-    $tipoUsuario = new TTipoUsuario();
-    $tipoUsuario->CarregarSerial($_REQUEST['obj']);
-    $tipoUsuario->setNome($_REQUEST['nome']);
-    $tipoUsuario->setFlag($_REQUEST['flag']);
-    $tipoUsuario->Salvar();
-  }
+        $tipoUsuario->DeletarRegistro();
+    }
 
-  public static function getUsuariosDoTipo() {
-    $usuario = new \Biscoito\Modulos\Usuario\TUsuario();
-    echo count($usuario->ListarTodosOnde("tipousuario_id = {$_REQUEST['id']}"));
-  }
+    public function Salvar() {
+        $tipoUsuario = new TTipoUsuario();
+        $tipoUsuario->CarregarSerial($_REQUEST['obj']);
+        $tipoUsuario->setNome($_REQUEST['nome']);
+        $tipoUsuario->setFlag($_REQUEST['flag']);
+        $tipoUsuario->Salvar();
+    }
 
-  public static function ExibirSelecao($usuario_id = null, $id = null) {
-    global $_Biscoito;
-    global $_UsuarioLogado;
-    $tiposUsuario = new TTipoUsuario();
-    $tiposUsuario = $tiposUsuario->ListarTodos();
-    $tiposUsuario = $_Biscoito->ordenarObjetos($tiposUsuario, 'Nome', SORT_ASC);
-    $readonly = ($_UsuarioLogado->getId() == $usuario_id);
-    include('tipousuario.view.select.php');
-  }
+    public static function getUsuariosDoTipo() {
+        $usuario = new \Biscoito\Modulos\Usuario\TUsuario();
+        echo count($usuario->ListarTodosOnde("tipousuario_id = {$_REQUEST['id']}"));
+    }
 
 }
 

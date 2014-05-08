@@ -140,17 +140,16 @@ class UserController {
     }
 
     public static function ShowUserTableByType($accid) {
-        global $_MyCookie;        
+        global $_MyCookie;
         $data = User::Select('u')->join('u.accountType', 'a')->where("a.id = ?1")->add('orderBy', 'u.name ASC, u.status DESC')
-                        ->setParameter(1, $accid)->getQuery()->execute();                
-        $_MyCookie->LoadView('user', 'Manage.table', $data);        
+                        ->setParameter(1, $accid)->getQuery()->execute();
+        $_MyCookie->LoadView('user', 'Manage.table', $data);
     }
 
-    public static function Adicionar() {
-        TUsuarioControl::VerificarNivelAcesso('ADMINISTRADOR');
-        $usuario = new TUsuario;
-        $acao = 'Adicionar';
-        include('usuario.view.edicao.php');
+    public static function Add() {
+        global $_MyCookie;
+        UserController::VerifyAccessLevel('ADMINISTRATOR');
+        $_MyCookie->LoadView('user', 'Edit', array('action' => 'Add', 'user' => new User));
     }
 
     public static function Editar() {

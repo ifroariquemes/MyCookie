@@ -434,12 +434,15 @@ class MyCookie {
         $cssBundle = '<link rel="stylesheet" type="text/css" href="%scomponents/bundle.css" />';
         echo sprintf($cssBundle, $this->getSite());
     }
-
-    public function JSBundle() {        
+    
+    public function RequireJS() {
         $scriptRequireJS = '<script type="text/javascript" src="%scomponents/require.js"></script>';
-        $scriptBundle = '<script type="text/javascript" src="%scomponents/bundle.js"></script>';        
-        include_once('components/mycookie.js.php');
         echo sprintf($scriptRequireJS, $this->getSite());
+    }
+
+    public function JSBundle() {                
+        $scriptBundle = '<script type="text/javascript" src="%scomponents/bundle.js"></script>';        
+        include_once('components/mycookie.js.php');        
         echo sprintf($scriptBundle, $this->getSite());        
     }
 
