@@ -20,7 +20,7 @@ class Object {
      * @global \Doctrine\ORM\EntityManager $_EntityManager
      * @return \Doctrine\ORM\QueryBuilder
      */
-    public static function Select($alias) {        
+    public static function select($alias) {        
         global $_EntityManager;
         $_EntityManager = Database::EntityManager();
         return $_EntityManager->createQueryBuilder()->select($alias)->from(get_called_class(), $alias);

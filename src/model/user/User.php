@@ -28,7 +28,7 @@ class User extends Object {
     /** @Column(type="string", length=32) */
     private $password;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     private $email;
 
     /** @Column(type="datetime", nullable=true) */

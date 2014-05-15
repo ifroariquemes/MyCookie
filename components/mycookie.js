@@ -65,7 +65,7 @@ function TMyCookieJS() {
      * @param {string} content The content to show
      * @returns {Boolean}
      */
-    this.showStaticPopup = function(popupId, content) {
+    this.showStaticPopup = function(popupId, content, onShow, onHide) {
         var modal, modaldialog, modalcontent, modalprevious, modalbackdrop, previousPopupId, idPopup;
         /*try {*/
         openingPopup = true;
@@ -109,7 +109,15 @@ function TMyCookieJS() {
                 .attr('id', popupId)
                 .append(modaldialog)
                 .append(modalprevious)
+                .on('shown.bs.modal', function() {
+                    if (typeof (onShow) === 'function') {                        
+                        onShow();
+                    }
+                })
                 .on('hidden.bs.modal', function() {
+                    if (typeof (onHide) === 'function') {
+                        onHide();
+                    }
                     backtoPopup($(this).attr('id'));
                 });
 
@@ -178,7 +186,7 @@ function TMyCookieJS() {
             if (moduleAction === null) {
                 throw 1;
             }
-            isAsync = (typeof (isAsync) === 'boolean') ? isAsync : false;            
+            isAsync = (typeof (isAsync) === 'boolean') ? isAsync : false;
             requestType = (typeof (requestType) === 'string') ? requestType : 'POST';
             $.ajax({
                 async: isAsync,
@@ -186,7 +194,7 @@ function TMyCookieJS() {
                 url: self.mountURL(moduleAction, false),
                 data: data,
                 success: function(executionReturn) {
-                    returning = executionReturn;                    
+                    returning = executionReturn;
                 }
 
             });
@@ -222,20 +230,13 @@ function TMyCookieJS() {
         $('.modal-backdrop').remove();
     }
 
-    this.gotoPopup = function(nomePopup) {
-
+    this.gotoPopup = function(namePopup) {
         self.closePopup(null, true);
-
         setTimeout(function() {
-
-            openingPopup = false
-
-            var idPopup = sprintf('#%s', nomePopup);
-            $(idPopup).modal('show');
-
+            openingPopup = false;
+            $(String.format('#{0}', namePopup)).modal('show');
         }, 700);
-
-    }
+    };
 
     var backtoPopup = function(PopupAtual) {
         if (!openingPopup) {
@@ -420,6 +421,7 @@ function TMyCookieJS() {
         $(modalheader)
                 .addClass('modal-header')
                 .append(header);
+
         message = document.createElement('p');
         $(message).css('text-align', 'justify');
         $(message).append(messageStr);
@@ -479,71 +481,77 @@ function TMyCookieJS() {
                 .append(noButton);
 
         modalcontent = document.createElement('div');
-        $(modalcontent)
-                .addClass('modal-content')
+        $(modalcontent)                
                 .append(modalheader)
                 .append(modalbody)
-                .append(modalfooter);
+                .append(modalfooter);        
 
-        modaldialog = document.createElement('div');
-        $(modaldialog)
-                .addClass('modal-dialog')
-                .append(modalcontent);
+        MyCookieJS.showStaticPopup('ConfirmBS', modalcontent, function() { $(onYes).focus(); });
+    };
 
-        modal = document.createElement('div');
-        $(modal)
-                .append(modalheader)
-                .append(modalbody)
-                .append(modalfooter)
-                .on('shown.bs.modal', function() {
-                    $(onYes).focus();
-                });
+    this.alert = function(messageStr, gotoPopup) {
+        var modalcontent, modalheader, header, modalbody, message, modalfooter, okButton;
+        title = 'Mensagem do sistema';
 
-        MyCookieJS.showStaticPopup('ConfirmBS', modal);
-    }
-
-    this.alert = function(mensagem, irParaPopup) {
-
-        titulo = 'Mensagem do sistema';
-        var content, modalheader, header, modalbody, message, modalfooter, okButton;
-        content = document.createElement('div');
-        modalheader = document.createElement('div');
-        $(modalheader).addClass('modal-header');
         header = document.createElement('h4');
-        $(header).append(titulo);
-        $(modalheader).append(header);
-        modalbody = document.createElement('div');
-        $(modalbody).addClass('modal-body');
+        $(header).append(title);
+
+        modalheader = document.createElement('div');
+        $(modalheader)
+                .addClass('modal-header')
+                .append(header);
+
         message = document.createElement('p');
-        $(message).css('text-align', 'justify');
-        $(message).append(mensagem);
-        $(modalbody).append(message);
-        modalfooter = document.createElement('div');
-        $(modalfooter).addClass('modal-footer');
-        $(modalfooter).css('text-align', 'center');
+        $(message)
+                .css('text-align', 'justify')
+                .append(messageStr);
+
+        modalbody = document.createElement('div');
+        $(modalbody)
+                .addClass('modal-body')
+                .append(message);
+
         okButton = document.createElement('button');
-        $(okButton).addClass('btn btn-primary');
-        if (irParaPopup == null)
-            $(okButton).click(function() {
-                _Biscoito.FecharPopup('AlertBS')
-            });
-        else if (irParaPopup == true)
-            $(okButton).click(function() {
-                _Biscoito.FecharTodasPopups();
-            });
-        else if (is_string(irParaPopup))
-            $(okButton).click(function() {
-                _Biscoito.IrParaPopup(irParaPopup)
-            });
-        else
-            $(okButton).click(irParaPopup);
-        $(okButton).append('OK');
-        $(modalfooter).append(okButton);
-        $(content).append(modalheader);
-        $(content).append(modalbody);
-        $(content).append(modalfooter);
-        _Biscoito.AbrirPopupEstatico('AlertBS', content);
-    }
+        $(okButton)
+                .addClass('btn btn-primary')
+                .append('OK');
+        switch (typeof (gotoPopup)) {
+            case 'boolean':
+                $(okButton).click(function() {
+                    MyCookieJS.closeAllPopups();
+                });
+                break;
+            case 'string':
+                $(okButton).click(function() {
+                    MyCookieJS.gotoPopup(gotoPopup);
+                });
+                break;
+            case 'function':
+                $(okButton).click(gotoPopup);
+                break;
+            default :
+                $(okButton).click(function() {
+                    MyCookieJS.closePopup('AlertBS');
+                });
+                break;
+        }
+
+        modalfooter = document.createElement('div');
+        $(modalfooter)
+                .addClass('modal-footer')
+                .css('text-align', 'center')
+                .append(okButton);
+
+        modalcontent = document.createElement('div');
+        $(modalcontent)
+                .append(modalheader)
+                .append(modalbody)
+                .append(modalfooter);      
+
+        MyCookieJS.showStaticPopup('AlertBS', modalcontent, function() {
+            $(okButton).focus();
+        });
+    };
 
 }
 

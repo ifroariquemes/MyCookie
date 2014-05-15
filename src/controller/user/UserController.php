@@ -38,20 +38,36 @@ class UserController {
         $_MyCookie->LoadView('user', 'Manage');
     }
 
-    public static function Salvar() {
+    public static function Add() {
+        global $_MyCookie;
+        UserController::VerifyAccessLevel('ADMINISTRATOR');
+        $_MyCookie->LoadView('user', 'Edit', array('action' => 'Add', 'user' => new User));
+    }
+
+    public static function Edit() {
+        global $_MyCookie;
         global $_MyCookieUser;
-        $usuario = new TUsuario;
-        $usuario->CarregarSerial($_REQUEST['obj']);
-        $usuario->setNome($_REQUEST['nome']);
-        $usuario->setNomeDoMeio($_REQUEST['nomeMeio']);
-        $usuario->setSobrenome($_REQUEST['sobrenome']);
-        $usuario->setTipoUsuario_Id($_REQUEST['tipousuario_id']);
-        $usuario->setUsuario($_REQUEST['usuario']);
-        if (isset($_REQUEST['novaSenha']))
-            $usuario->setSenha(md5($_REQUEST['novaSenha']));
-        $usuario->Salvar();
-        if ($_MyCookieUser->getId() == $usuario->getId())
-            $_SESSION['MyCookie_SESSAO_USUARIO'] = serialize($usuario);
+        $user = User::select('u')->where('u.id =  ?1')
+                        ->setParameter(1, $_MyCookie->getURLVariables(2))->getQuery()->getSingleResult();
+        if ($_MyCookieUser->getId() != $user->getId()) {
+            UserController::VerifyAccessLevel('ADMINISTRATOR');
+        }
+        $_MyCookie->LoadView('user', 'Edit', array('action' => 'Edit', 'user' => $user));
+    }
+
+    public static function Save() {
+        $user = (empty(filter_input(INPUT_POST, 'id'))) ? new User() : User::select('u')->where('u.id =  ?1')
+                        ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
+        $user->setName(filter_input(INPUT_POST, 'name'));
+        $user->setMiddleName(filter_input(INPUT_POST, 'middleName'));
+        $user->setLastname(filter_input(INPUT_POST, 'lastName'));
+        $user->setLogin(filter_input(INPUT_POST, 'login'));
+        if (!empty(filter_input(INPUT_POST, 'newPassword'))) {
+            $user->setPassword(md5(filter_input(INPUT_POST, 'newPassword')));
+        }
+        $user->setAccountType(AccountType::select('a')->where('a.id = ?1')
+                        ->setParameter(1, filter_input(INPUT_POST, 'accountTypeId'))->getQuery()->getSingleResult());
+        $user->Save();
     }
 
     public static function AlterarSenha() {
@@ -82,7 +98,7 @@ class UserController {
     }
 
     public function Login() {
-        $users = User::Select('u')
+        $users = User::select('u')
                 ->where('u.login = :login')
                 ->setParameter('login', filter_input(INPUT_POST, 'login'))
                 ->getQuery()
@@ -104,7 +120,7 @@ class UserController {
     public static function LoadSessionUser() {
         global $_MyCookieUser;
         if (array_key_exists(MyCookie::UserIdSession, $_SESSION) & !empty($_SESSION[MyCookie::UserIdSession])) {
-            $_MyCookieUser = User::Select('u')
+            $_MyCookieUser = User::select('u')
                             ->where('u.id = :id')
                             ->setParameter('id', $_SESSION[MyCookie::UserIdSession])
                             ->getQuery()
@@ -141,26 +157,9 @@ class UserController {
 
     public static function ShowUserTableByType($accid) {
         global $_MyCookie;
-        $data = User::Select('u')->join('u.accountType', 'a')->where("a.id = ?1")->add('orderBy', 'u.name ASC, u.status DESC')
+        $data = User::select('u')->join('u.accountType', 'a')->where("a.id = ?1")->add('orderBy', 'u.name ASC, u.status DESC')
                         ->setParameter(1, $accid)->getQuery()->execute();
         $_MyCookie->LoadView('user', 'Manage.table', $data);
-    }
-
-    public static function Add() {
-        global $_MyCookie;
-        UserController::VerifyAccessLevel('ADMINISTRATOR');
-        $_MyCookie->LoadView('user', 'Edit', array('action' => 'Add', 'user' => new User));
-    }
-
-    public static function Edit() {
-        global $_MyCookie;
-        global $_MyCookieUser;
-        $user = User::Select('u')->where('u.id =  ?1')
-                        ->setParameter(1, $_MyCookie->getURLVariables(2))->getQuery()->getSingleResult();        
-        if ($_MyCookieUser->getId() != $user->getId()) {
-            UserController::VerifyAccessLevel('ADMINISTRATOR');
-        }
-        $_MyCookie->LoadView('user', 'Edit', array('action' => 'Edit', 'user' => $user));
     }
 
     public static function VerificarSenhaAtual() {

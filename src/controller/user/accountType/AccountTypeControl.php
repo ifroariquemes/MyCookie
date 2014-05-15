@@ -27,13 +27,13 @@ class AccountTypeControl {
     }
 
     public static function ListAccountTypes() {
-        return AccountType::Select('a')->orderBy('a.name')->getQuery()->execute();
+        return AccountType::select('a')->orderBy('a.name')->getQuery()->execute();
     }
 
     public static function ShowSelection($userid = null, $accid = null) {
         global $_MyCookie;
         global $_MyCookieUser;
-        $accountTypes = AccountType::Select('a')->orderBy('a.name')->getQuery()->execute();
+        $accountTypes = AccountType::select('a')->orderBy('a.name')->getQuery()->execute();
         $readonly = ($_MyCookieUser->getId() == $userid);
         $_MyCookie->LoadView('user/accountType', 'Select', array('accountTypes' => $accountTypes, 'readonly' => $readonly, 'accid' => $accid));
     }

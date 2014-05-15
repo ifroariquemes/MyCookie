@@ -13,7 +13,7 @@ $user = $data['user'];
     <div class="col-lg-6">
         <div class="panel panel-default">
             <div class="panel-body">
-                <form name="FrmEdit" id="FrmEdit" role="form" onsubmit="user.submit(); return false;">
+                <form name="FrmEdit" id="FrmEdit" role="form" onsubmit="user.submit(event);">
                     <fieldset>
                         <div class="form-group">
                             <label for="textName"><?php _e('Name', 'user') ?>*:</label>                            
@@ -32,12 +32,12 @@ $user = $data['user'];
                             <input type="email" name="email" id="textEmail" class="form-control" value="<?php echo $user->getEmail() ?>">                            
                         </div>
                         <div class="form-group">
-                            <label for="textNomeMeio"><?php _e('Account type', 'user') ?>*:</label>                            
+                            <label for="selectaccountTypeId"><?php _e('Account type', 'user') ?>*:</label>                            
                             <?php AccountTypeControl::ShowSelection($user->getId(), $user->getAccountType()->getId()) ?>                                                    
                         </div>        
                         <div class="form-group">
-                            <label for="textUsuario"><?php _e('Username', 'user') ?>*:</label>                            
-                            <input required="required" type="text" <?php if ($user->getId()) : ?>readonly="readonly"<?php endif; ?> name="usuario" id="textUsuario" class="form-control" value="<?php echo $user->getLogin() ?>">                            
+                            <label for="textLogin"><?php _e('Username', 'user') ?>*:</label>                            
+                            <input required="required" type="text" <?php if ($user->getId()) : ?>readonly="readonly"<?php endif; ?> name="login" id="textLogin" class="form-control" value="<?php echo $user->getLogin() ?>">                            
                         </div>  
                         <?php if (!$user->getId()) : ?>
                             <div class="form-group">
@@ -62,25 +62,25 @@ $user = $data['user'];
                     <h3 class="panel-title"><?php _e('Want to change the password?', 'user') ?></h3>
                 </div>
                 <div class="panel-body">
-                    <form name="FrmEditPassword" id="FrmEditPassword" onsubmit="user.changePassword(); return false;">
+                    <form name="FrmEditPassword" id="FrmEditPassword" onsubmit="user.changePassword(event)">
                         <div class="form-group">
                             <label for="textActualPassword"><?php _e('Password', 'user') ?></label>                            
                             <input required="required" type="password" name="actualPassword" id="textActualPassword" class="form-control" value="">                            
                         </div>
                         <div class="form-group">
                             <label for="textNewPassword"><?php _e('New password', 'user') ?>:</label>                            
-                            <input required="required" min="6" type="password" name="newPassword" id="textNewPassword" class="form-control" value="">                            
+                            <input required="required" pattern=".{6,32}" onchange="user.onChangePassword()" type="password" name="newPassword" id="textNewPassword" class="form-control" value="">                            
                         </div>
                         <div class="form-group">
                             <label for="textPasswordRepeat"><?php _e('Repeat new password', 'user') ?>:</label>                            
-                            <input required="required" type="password" name="passwordRepeat" id="textPasswordRepeat" class="form-control" value="">                            
+                            <input required="required" type="password" onchange="user.onChangePassword()" name="passwordRepeat" id="textPasswordRepeat" class="form-control" value="">                            
                         </div>
                         </fieldset>
                         <input type="hidden" name="id" value="<?php echo $user->getId() ?>">                
-                    </form>
-                    <div class="text-right">                           
-                        <button class="btn btn-default" type="submit"><i class="fa fa-edit"></i> <?php _e('Change password', 'user') ?></button>                
-                    </div>
+                        <div class="text-right">                           
+                            <button class="btn btn-default" type="submit"><i class="fa fa-edit"></i> <?php _e('Change password', 'user') ?></button>                
+                        </div>
+                    </form>                    
                     <div class="text-right">
                         <br>
                         <?php if ($user->getStatus()) : ?>
@@ -99,7 +99,8 @@ $user = $data['user'];
 <script type="text/javascript">
     function User() {
 
-        this.submit = function() {
+        this.submit = function(e) {
+            e.preventDefault();
             var msg = MyCookieJS.execute('user/save', $('#FrmEdit').serialize(), false);
             if (msg !== '') {
                 alert(msg);
@@ -108,7 +109,28 @@ $user = $data['user'];
                 MyCookieJS.alert('Usuário salvo com sucesso!', function() {
                     MyCookieJS.goto('administrator/user');
                 });
-            }            
+            }
+        };
+
+        this.onChangePassword = function() {
+            if ($('#textNewPassword').val() !== $('#textPasswordRepeat').val()) {
+                document.getElementById('textPasswordRepeat').setCustomValidity('Passwords do not match');
+            } else {
+                document.getElementById('textPasswordRepeat').setCustomValidity('');
+            }
+        }
+
+        this.changePassword = function(e) {
+            e.preventDefault();
+            var msg = MyCookieJS.execute('user/changePassword', $('#FrmEditPassword').serialize(), false);
+            if (msg !== '') {
+                alert(msg);
+            }
+            else {
+                MyCookieJS.alert('Senha alterada com sucesso!', function() {
+                    MyCookieJS.goto('administrator/user');
+                });
+            }
         };
     }
 

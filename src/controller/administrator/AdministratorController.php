@@ -24,7 +24,7 @@ class AdministratorController extends Router {
     public static function ShowLogin() {
         /* @var $_MyCookie \lib\MyCookie */
         global $_MyCookie;
-        $account = AccountType::Select('a')->getQuery()->execute();
+        $account = AccountType::select('a')->getQuery()->execute();
         if (count($account) === 0) {
             UserController::FirstRun();             
         }

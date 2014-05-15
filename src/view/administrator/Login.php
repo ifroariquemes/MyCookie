@@ -12,6 +12,7 @@ global $_MyCookie;
         <title><?php _e('administrative panel', 'administrator') ?></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <?php $_MyCookie->CSSBundle() ?>        
+        <?php $_MyCookie->RequireJS() ?>
     </head>
     <body>        
         <div class="container">                        
