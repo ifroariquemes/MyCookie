@@ -63,6 +63,7 @@ function TMyCookieJS() {
      * Shows a popup with some content
      * @param {string} popupId The popup id
      * @param {string} content The content to show
+     * @param {function} onShow Something to do on show
      * @returns {Boolean}
      */
     this.showStaticPopup = function(popupId, content, onShow, onHide) {
@@ -410,7 +411,7 @@ function TMyCookieJS() {
     }
 
     this.confirm = function(messageStr, onYes, onNo, closeAtConfirm) {
-        var modal, modaldialog, modalcontent, modalheader, header, modalbody, message, modalfooter, yesIcon, yesButton, noIcon, noButton;
+        var modalcontent, modalheader, header, modalbody, message, modalfooter, yesIcon, yesButton, noIcon, noButton;
         var title = 'Confirmação';
         closeAtConfirm = (typeof (closeAtConfirm) === 'boolean') ? closeAtConfirm : true;
 
@@ -486,7 +487,7 @@ function TMyCookieJS() {
                 .append(modalbody)
                 .append(modalfooter);        
 
-        MyCookieJS.showStaticPopup('ConfirmBS', modalcontent, function() { $(onYes).focus(); });
+        MyCookieJS.showStaticPopup('ConfirmBS', modalcontent, function() { $(yesButton).focus(); });
     };
 
     this.alert = function(messageStr, gotoPopup) {

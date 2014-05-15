@@ -17,7 +17,7 @@ global $_MyCookie;
     <body>        
         <div class="container">                        
             <div class="col-lg-offset-4 col-lg-4">
-                <h2><?php _e('administrative panel', 'administrator') ?></h2>
+                <h2 data-i18n="administrator:header.title"></h2>
                 <form id="FrmLogin" method="post" class="jumbotron" action="<?php echo "{$_MyCookie->getSite()}user/login"; ?>">                    
                     <p><?php echo $_SESSION[MyCookie::MessageSession] ?></p>
                     <div class="input-group input-group-lg">                        
@@ -38,6 +38,7 @@ global $_MyCookie;
         <script type="text/javascript">
             require(['jquery'], function($) {
                 $('#login').focus();
+                $('.container').i18n();
             });
         </script>
     </body>

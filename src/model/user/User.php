@@ -143,7 +143,7 @@ class User extends Object {
     }
 
     public function getStatusStr() {
-        return ($this->Status) ? 'ATIVADO' : 'DESATIVADO';
+        return ($this->status) ? 'ATIVADO' : 'DESATIVADO';
     }
 
 }

@@ -14,37 +14,37 @@ class UserController {
         }
     }
 
-    public static function FirstRun() {
+    public static function firstRun() {
         $acAdmin = new AccountType();
         $acAdmin->setFlag('ADMINISTRATOR');
         $acAdmin->setName('Administrator');
-        $acAdmin->Save();
+        $acAdmin->save();
         $acUser = new AccountType();
         $acUser->setFlag('USER');
         $acUser->setName('User');
-        $acUser->Save();
+        $acUser->save();
         $uAdmin = new User();
         $uAdmin->setName('Administrator');
         $uAdmin->setLastName('Default');
         $uAdmin->setLogin('admin');
         $uAdmin->setPassword('admin');
         $uAdmin->setAccountType($acAdmin);
-        $uAdmin->Save();
+        $uAdmin->save();
     }
 
-    public static function Manage() {
+    public static function manage() {
         global $_MyCookie;
         UserController::VerifyAccessLevel('ADMINISTRATOR');
         $_MyCookie->LoadView('user', 'Manage');
     }
 
-    public static function Add() {
+    public static function add() {
         global $_MyCookie;
         UserController::VerifyAccessLevel('ADMINISTRATOR');
         $_MyCookie->LoadView('user', 'Edit', array('action' => 'Add', 'user' => new User));
     }
 
-    public static function Edit() {
+    public static function edit() {
         global $_MyCookie;
         global $_MyCookieUser;
         $user = User::select('u')->where('u.id =  ?1')
@@ -55,7 +55,7 @@ class UserController {
         $_MyCookie->LoadView('user', 'Edit', array('action' => 'Edit', 'user' => $user));
     }
 
-    public static function Save() {
+    public static function save() {
         $user = (empty(filter_input(INPUT_POST, 'id'))) ? new User() : User::select('u')->where('u.id =  ?1')
                         ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
         $user->setName(filter_input(INPUT_POST, 'name'));
@@ -63,22 +63,44 @@ class UserController {
         $user->setLastname(filter_input(INPUT_POST, 'lastName'));
         $user->setLogin(filter_input(INPUT_POST, 'login'));
         if (!empty(filter_input(INPUT_POST, 'newPassword'))) {
-            $user->setPassword(md5(filter_input(INPUT_POST, 'newPassword')));
+            $user->setPassword(filter_input(INPUT_POST, 'newPassword'));
         }
         $user->setAccountType(AccountType::select('a')->where('a.id = ?1')
                         ->setParameter(1, filter_input(INPUT_POST, 'accountTypeId'))->getQuery()->getSingleResult());
-        $user->Save();
+        $user->save();
     }
 
-    public static function AlterarSenha() {
+    public static function deactivate() {
+        $user = User::select('u')->where('u.id = ?1')
+                        ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
+        $user->setStatus(0);
+        $user->save();
+    }
 
-        $usuario = new TUsuario;
+    public static function reactivate() {
+        $user = User::select('u')->where('u.id = ?1')
+                        ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
+        $user->setStatus(1);
+        $user->save();
+    }
 
-        $usuario->CarregarSerial($_REQUEST['obj']);
+    public static function delete() {
+        $user = User::select('u')->where('u.id = ?1')
+                        ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
+        $user->delete();
+    }
 
-        $usuario->setSenha(md5($_REQUEST['senha']));
+    public static function checkActualPassword() {
+        $user = User::select('u')->where('u.id = ?1')
+                        ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
+        echo ($user->getPassword() == md5(filter_input(INPUT_POST, 'actualPassword'))) ? 'true' : 'false';                
+    }
 
-        $usuario->Salvar();
+    public static function changePassword() {
+        $user = User::select('u')->where('u.id = ?1')
+                        ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
+        $user->setPassword(filter_input(INPUT_POST, 'newPassword'));
+        $user->save();
     }
 
     public static function getNomeUsuario() {
@@ -160,35 +182,6 @@ class UserController {
         $data = User::select('u')->join('u.accountType', 'a')->where("a.id = ?1")->add('orderBy', 'u.name ASC, u.status DESC')
                         ->setParameter(1, $accid)->getQuery()->execute();
         $_MyCookie->LoadView('user', 'Manage.table', $data);
-    }
-
-    public static function VerificarSenhaAtual() {
-
-        $usuario = new TUsuario;
-
-        $usuario->CarregarSerial($_REQUEST['obj']);
-
-        echo ($usuario->getSenha() == md5($_REQUEST['senhaAtual'])) ? 'true' : 'false';
-    }
-
-    public static function ReativarUsuario() {
-        $usuario = new TUsuario;
-        $usuario->CarregarSerial($_REQUEST['obj']);
-        $usuario->setStatus('1');
-        $usuario->Salvar();
-    }
-
-    public static function DesativarUsuario() {
-        $usuario = new TUsuario;
-        $usuario->CarregarSerial($_REQUEST['obj']);
-        $usuario->setStatus('0');
-        $usuario->Salvar();
-    }
-
-    public static function Excluir() {
-        $usuario = new TUsuario;
-        $usuario->CarregarSerial($_REQUEST['obj']);
-        $usuario->DeletarRegistro();
     }
 
     public static function VerificarUsuario() {

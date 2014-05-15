@@ -75,7 +75,7 @@ global $_MyCookieUser;
             <div class="row">
                 <?php if ($_MyCookie->getModule() == 'administrator') : ?>
                     <div class="col-lg-6 col-sm-6 col-xs-5">
-                        <h1><?php _e('administrative panel', 'administrator') ?></h1>
+                        <h1 data-i18n="administrator:header.title"></h1>
                     </div>
                 <?php else : ?>                
                     <div class="col-lg-1 col-sm-1 col-xs-2">
@@ -107,7 +107,7 @@ global $_MyCookieUser;
                     <ul id="profile-dropdown" class="dropdown-menu" role="menu">
                         <li><a href="#"><?php _e('Edit profile', 'administrator') ?></a></li>                       
                         <li class="divider"></li>
-                        <li><a href="user/logout"><i class="fa fa-sign-out"></i> <?php _e('Sign out', 'administrator') ?></a></li>
+                        <li><a href="<?php echo $_MyCookie->mountLink('user','logout') ?>"><i class="fa fa-sign-out"></i> <?php _e('Sign out', 'administrator') ?></a></li>
                     </ul>
                 </div>                                                        
             </div>        

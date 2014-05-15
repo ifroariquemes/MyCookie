@@ -26,7 +26,7 @@ class AdministratorController extends Router {
         global $_MyCookie;
         $account = AccountType::select('a')->getQuery()->execute();
         if (count($account) === 0) {
-            UserController::FirstRun();             
+            UserController::firstRun();             
         }
         $_MyCookie->LoadView('administrator', 'Login');
         //unset($_SESSION[MyCookie::MessageSession]);

@@ -65,15 +65,15 @@ $user = $data['user'];
                     <form name="FrmEditPassword" id="FrmEditPassword" onsubmit="user.changePassword(event)">
                         <div class="form-group">
                             <label for="textActualPassword"><?php _e('Password', 'user') ?></label>                            
-                            <input required="required" type="password" name="actualPassword" id="textActualPassword" class="form-control" value="">                            
+                            <input required="required" type="password" name="actualPassword" id="textActualPassword" class="form-control" value="" onblur="user.event_onBlurActualPassword()">                            
                         </div>
                         <div class="form-group">
                             <label for="textNewPassword"><?php _e('New password', 'user') ?>:</label>                            
-                            <input required="required" pattern=".{6,32}" onchange="user.onChangePassword()" type="password" name="newPassword" id="textNewPassword" class="form-control" value="">                            
+                            <input required="required" pattern=".{6,32}" onchange="user.event_onChangePassword()" type="password" name="newPassword" id="textNewPassword" class="form-control" value="">                            
                         </div>
                         <div class="form-group">
                             <label for="textPasswordRepeat"><?php _e('Repeat new password', 'user') ?>:</label>                            
-                            <input required="required" type="password" onchange="user.onChangePassword()" name="passwordRepeat" id="textPasswordRepeat" class="form-control" value="">                            
+                            <input required="required" type="password" onchange="user.event_onChangePassword()" name="passwordRepeat" id="textPasswordRepeat" class="form-control" value="">                            
                         </div>
                         </fieldset>
                         <input type="hidden" name="id" value="<?php echo $user->getId() ?>">                
@@ -84,11 +84,11 @@ $user = $data['user'];
                     <div class="text-right">
                         <br>
                         <?php if ($user->getStatus()) : ?>
-                            <a href="#" onclick="user.deactivate()"><?php _e('Deactivate user', 'user') ?></a>
+                            <a href="#" onclick="user.deactivate(event)"><?php _e('Deactivate user', 'user') ?></a>
                         <?php else : ?>
-                            <?php _e('User deactivated', 'user') ?> <a href="#" onclick="user.reactivate()"><?php _e('Reactivate user', 'user') ?></a>
+                            <span class="alert-danger"><?php _e('This user is deactivated', 'user') ?></span> <a href="#" onclick="user.reactivate(event)"><?php _e('Reactivate user?', 'user') ?></a>
                         <?php endif; ?>
-                        | <a href="#" onclick="user.delete()"><?php _e('Delete user', 'user') ?></a>                
+                        | <a href="#" onclick="user.delete(event)"><?php _e('Delete user', 'user') ?></a>                
                     </div>
                 </div>
             </div>                       
@@ -99,26 +99,54 @@ $user = $data['user'];
 <script type="text/javascript">
     function User() {
 
-        this.submit = function(e) {
-            e.preventDefault();
-            var msg = MyCookieJS.execute('user/save', $('#FrmEdit').serialize(), false);
-            if (msg !== '') {
-                alert(msg);
-            }
-            else {
-                MyCookieJS.alert('Usuário salvo com sucesso!', function() {
-                    MyCookieJS.goto('administrator/user');
-                });
-            }
-        };
+        var self = this;
+        
+        document.getElementById('textActualPassword').setCustomValidity('Incorrect password');
 
-        this.onChangePassword = function() {
+        this.event_onChangePassword = function() {
             if ($('#textNewPassword').val() !== $('#textPasswordRepeat').val()) {
                 document.getElementById('textPasswordRepeat').setCustomValidity('Passwords do not match');
             } else {
                 document.getElementById('textPasswordRepeat').setCustomValidity('');
             }
-        }
+        };
+
+        this.event_onBlurActualPassword = function() {
+            var msg = MyCookieJS.execute('user/checkActualPassword', $('#FrmEditPassword').serialize(), false);
+            if (msg === 'false') {
+                document.getElementById('textActualPassword').setCustomValidity('Incorrect password');
+            }
+            else {
+                document.getElementById('textActualPassword').setCustomValidity('');
+            }
+        };
+
+        this.deactivate = function(e) {
+            e.preventDefault();
+            var msg = MyCookieJS.execute('user/deactivate', $('#FrmEdit').serialize(), false);
+            if (msg !== '') {
+                alert(msg);
+            }
+            else {
+                MyCookieJS.alert(t('user:user_deactivated'));
+                MyCookieJS.alert('Usuário desativado com sucesso!', function() {
+                    MyCookieJS.goto('administrator/user');
+                });
+            }
+        };
+
+        this.reactivate = function(e) {
+            e.preventDefault();
+            var msg = MyCookieJS.execute('user/reactivate', $('#FrmEdit').serialize(), false);
+            if (msg !== '') {
+                alert(msg);
+            }
+            else {
+                MyCookieJS.alert('Usuário reativado com sucesso!', function() {
+                    MyCookieJS.goto('administrator/user');
+                });
+            }
+        };
 
         this.changePassword = function(e) {
             e.preventDefault();
@@ -128,6 +156,34 @@ $user = $data['user'];
             }
             else {
                 MyCookieJS.alert('Senha alterada com sucesso!', function() {
+                    MyCookieJS.goto('administrator/user');
+                });
+            }
+        };
+
+        this.delete = function(e) {
+            e.preventDefault();
+            MyCookieJS.confirm('Deseja realmente deletar este usuário?', function() {
+                var msg = MyCookieJS.execute('user/delete', $('#FrmEdit').serialize(), false);
+                if (msg !== '') {
+                    alert(msg);
+                }
+                else {
+                    MyCookieJS.alert('Usuário deletado com sucesso!', function() {
+                        MyCookieJS.goto('administrator/user');
+                    });
+                }
+            });
+        };
+
+        this.submit = function(e) {
+            e.preventDefault();
+            var msg = MyCookieJS.execute('user/save', $('#FrmEdit').serialize(), false);
+            if (msg !== '') {
+                alert(msg);
+            }
+            else {
+                MyCookieJS.alert('Usuário salvo com sucesso!', function() {
                     MyCookieJS.goto('administrator/user');
                 });
             }

@@ -9,10 +9,12 @@ class BuildController {
     const BuildCSSFile = 'components/build-css.js';
     const BuildJSConfigFile = 'components/build-config.js';
     const BuildCSSConfigFile = 'components/build-config.css';
+    const BuildMyCookieJSVariablesFile = 'components/mycookie.js.php';
     const SourceJS = 'src/assets/js';
     const SourceCSS = 'src/assets/css';
     const SourceViews = 'src/view';
     const SourceLang = 'src/lang';
+    const SourceModulesConfig = 'src/config';
 
     public function Build() {
         global $_Async;
@@ -33,7 +35,9 @@ class BuildController {
             fwrite($fp, "   baseUrl: \"../\",\n");
             fwrite($fp, "   paths: {\n");
             fwrite($fp, "       mycookie: \"components/mycookie\",\n");
+            fwrite($fp, "       i18next: \"components/i18next/i18next-1.7.3.min\",\n");
             array_push($jsFilesId, 'mycookie');
+            array_push($jsFilesId, 'i18next');
             if ($myCookieConfiguration->build->use_jquery) {
                 fwrite($fp, "       jquery: \"vendor/sheillendra/metro-bootstrap/docs/jquery-1.8.0\",\n");
                 array_push($jsFilesId, 'jquery');
@@ -185,6 +189,39 @@ class BuildController {
         } else {
             echo 'The password does\'t match';
         }
+    }
+
+    public function BuildMyCookieJSVariables() {
+        //if ($this->CheckPassword()) {
+        unlink(BuildController::BuildMyCookieJSVariablesFile);
+        $fp = fopen(BuildController::BuildMyCookieJSVariablesFile, 'w+');
+        foreach ($this->SeekFiles(BuildController::SourceModulesConfig) as $module) {
+            $moduleInfo = explode('/', $module);
+            $ns.= sprintf("'%s',", explode('.', end($moduleInfo))[0]);
+        }
+        $ns = substr($ns, 0, -1);
+        $content = <<<CONTENT
+<?php global \$_MyCookie; ?>
+<script type="text/javascript">
+    MYCOOKIEJS_ACTION = '<?php echo \$_MyCookie->getAction(); ?>';
+    MYCOOKIEJS_MODULE = '<?php echo \$_MyCookie->getModule(); ?>';
+    MYCOOKIEJS_AUXILIARMODULE = '<?php echo \$_MyCookie->getAuxiliarModule(); ?>';
+    MYCOOKIEJS_NAMESPACE = '<?php echo str_replace('\\\\', '\\\\\\\\', \$_MyCookie->getNamespace()); ?>';
+    MYCOOKIEJS_SITE = '<?php echo \$_MyCookie->getSite(); ?>';
+    I18N_LANG = '<?php echo \$_MyCookie->getMyCookieConfiguration()->lang; ?>';
+    require(['jquery'], function($) {
+        i18n.init({
+            resGetPath: 'src/lang/__lng__/js/__ns__.json',
+            ns: {
+                namespaces: [$ns]
+            }
+        });
+    });
+</script>
+CONTENT;
+        fwrite($fp, $content);
+        fclose($fp);
+        //}
     }
 
     public function UpdateSchema() {
