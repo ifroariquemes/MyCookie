@@ -1,4 +1,5 @@
 {
+    "name": "MyCookie",
     "lang": "en_US",
     "database": {
         "driver": "mysql",
@@ -8,14 +9,28 @@
     },
     "build": {
         "password": "1234",
-        "use_jquery": true,
-        "use_bootstrap": true,
-        "use_metro": true
+        "custom_js": {
+            "jquery": "vendor/sheillendra/metro-bootstrap/docs/jquery-1.8.0.js",
+            "bootstrap": "vendor/sheillendra/metro-bootstrap/docs/bootstrap.js",
+            "application": "vendor/sheillendra/metro-bootstrap/docs/application.js"
+        },
+        "custom_css": {
+            "bootstrap": "vendor/sheillendra/metro-bootstrap/css/metro-bootstrap.css",
+            "font-awesome": "vendor/sheillendra/metro-bootstrap/docs/font-awesome.css"            
+        }
     },
     "home": {
         "gateway": "index",
         "module": "index",
         "control": "IndexControl",
         "action": "ShowPage"
+    },
+    "allowPublicSignup": true,
+    "mail": {
+        "host": "mail.host.com",
+        "username": "mailuser@host.com",
+        "password": "mailpassword",
+        "port": 465,
+        "security": "ssl"
     }
 }

@@ -9,7 +9,7 @@ if (!file_exists(Autoload)) {
 
 require_once (Autoload);
 
-session_start();
+session_start(); 
 
 /**
  * @var Doctrine\ORM\EntityManager ORM Manager
@@ -18,7 +18,8 @@ global $_EntityManager;
 /**
  * @var Modules\User\User The logged user
  */
-global $_MyCookieUser;
+global $_User;
+global $_Server;
 /**
  * @var Lib\TMyCookie Framework management;
  */

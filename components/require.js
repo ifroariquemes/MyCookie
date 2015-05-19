@@ -2020,20 +2020,23 @@ var requirejs, require, define;
 var components = {
     "packages": [
         {
+            "name": "bootstrap",
+            "main": "bootstrap-built.js"
+        },
+        {
             "name": "jquery",
             "main": "jquery-built.js"
         },
         {
-            "name": "jquery-ui",
-            "main": "jquery-ui-built.js"
+            "name": "bootstrap-datepicker",
+            "main": "bootstrap-datepicker-built.js"
         }
     ],
     "shim": {
-        "jquery-ui": {
+        "bootstrap": {
             "deps": [
                 "jquery"
-            ],
-            "exports": "jQuery"
+            ]
         }
     },
     "baseUrl": "components"

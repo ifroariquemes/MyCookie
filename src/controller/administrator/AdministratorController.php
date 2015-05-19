@@ -28,7 +28,7 @@ class AdministratorController extends Router {
         if (count($account) === 0) {
             UserController::firstRun();             
         }
-        $_MyCookie->LoadView('administrator', 'Login');
+        $_MyCookie->loadView('administrator', 'Login');
         //unset($_SESSION[MyCookie::MessageSession]);
     }
 
@@ -40,7 +40,7 @@ class AdministratorController extends Router {
         $this->VerifyAdministratorLoggedIn();
         if (is_null($view)) {
             ob_start();
-            $_MyCookie->LoadView('administrator', 'Main');            
+            $_MyCookie->loadView('administrator', 'Main');            
             $view = ob_get_contents();
             ob_end_clean();
         }

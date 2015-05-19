@@ -32,10 +32,10 @@ class AccountTypeControl {
 
     public static function ShowSelection($userid = null, $accid = null) {
         global $_MyCookie;
-        global $_MyCookieUser;
+        global $_User;
         $accountTypes = AccountType::select('a')->orderBy('a.name')->getQuery()->execute();
-        $readonly = ($_MyCookieUser->getId() == $userid);
-        $_MyCookie->LoadView('user/accountType', 'Select', array('accountTypes' => $accountTypes, 'readonly' => $readonly, 'accid' => $accid));
+        $readonly = ($_User->getId() == $userid);
+        $_MyCookie->loadView('user/accountType', 'Select', array('accountTypes' => $accountTypes, 'readonly' => $readonly, 'accid' => $accid));
     }
 
     public static function Gerenciar() {
@@ -81,7 +81,7 @@ class AccountTypeControl {
         $tipoUsuario->CarregarSerial($_REQUEST['obj']);
         $tipoUsuario->setNome($_REQUEST['nome']);
         $tipoUsuario->setFlag($_REQUEST['flag']);
-        $tipoUsuario->Salvar();
+        $tipoUsuario->save();
     }
 
     public static function getUsuariosDoTipo() {

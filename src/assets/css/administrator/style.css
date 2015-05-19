@@ -1,10 +1,55 @@
-/*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/* 
-    Created on : 01/05/2014, 09:59:45
-    Author     : natanaelsimoes
-*/
+#admin-body {
+    padding-bottom: 70px;
+}
+#admin-header {
+    margin-top: 40px;
+}
+#admin-header .user-info {                
+    position: relative;
+    text-align: right;  
+    float:right;
+    padding: 0px 10px;
+}
+#admin-header .user-info:hover {                
+    text-decoration: none;
+    background-color: #eee;
+}
+#admin-header .user-info h3 {
+    left: -20px;
+}
+#admin-header .user-info i {
+    position: relative;
+    top: 20px;
+    margin-left: 10px;
+}
+#admin-header #profile-dropdown {
+    left: auto !important;
+    right: 15px;
+}
+#admin-header .header-dropdown {
+    font-size: 30px;
+    text-decoration: none;
+}
+#admin-header .header-dropdown:hover {
+    text-decoration: none;
+}
+#admin-tile-section .thumbnail {
+    margin-right: 10px;
+}
+#admin-tile-section .thumbnail:hover {
+    text-decoration: none;
+}
+#admin-footer {
+    text-align: center;
+}
+#admin-navbar {
+    text-align: center;
+}
 
+.select2-container {
+    display: block !important;
+}
+
+.navbar-link:hover {
+    text-decoration: none
+}

@@ -8,19 +8,19 @@ class MenuControl {
 
     public static function ListCurrentModuleName() {
         global $_MyCookie;
-        return MenuControl::LoadMenu("{$_MyCookie->getModule()}.json")->getName();
+        return MenuControl::LoadMenu($_MyCookie->getModule(), false)->getName();
     }
 
     public static function ListModuleNames() {
         global $_MyCookie;
         $data = MenuControl::LoadMenus();
-        $_MyCookie->LoadView('administrator/menu', 'ListNames', $data);
+        $_MyCookie->loadView('administrator/menu', 'ListNames', $data);
     }
 
     public static function ListModuleIcons() {
         global $_MyCookie;
         $data = MenuControl::LoadMenus();
-        $_MyCookie->LoadView('administrator/menu', 'ListIcons', $data);
+        $_MyCookie->loadView('administrator/menu', 'ListIcons', $data);
     }
 
     private static function LoadMenus() {
@@ -39,21 +39,25 @@ class MenuControl {
         return $menuList;
     }
 
-    private static function LoadMenu($moduleConfigFile) {        
+    private static function LoadMenu($moduleConfigFile, $verifyAccessLevel = true) {
         global $_MyCookie;
-        $modulePathName = explode('.',$moduleConfigFile)[0];
-        $moduleConfig = $_MyCookie->getModuleConfiguration($modulePathName);                
+        $modulePathName = explode('.', $moduleConfigFile)[0];
+        $moduleConfig = $_MyCookie->getModuleConfiguration($modulePathName);
         if (empty($moduleConfig->getName())) {
             throw new \Exception("The $modulePathName module needs a name.");
         }
-        return (MenuControl::VerifyAccessLevel($moduleConfig->getAccesses())) ? new Menu($modulePathName, $moduleConfig) : false;
+        return (MenuControl::VerifyAccessLevel($moduleConfig->getAccesses()) || !$verifyAccessLevel) ? new Menu($modulePathName, $moduleConfig) : false;
     }
 
     private static function VerifyAccessLevel($accesses) {
-        global $_MyCookieUser;                    
-        return (empty($accesses) || in_array($_MyCookieUser->getAccountType()->getFlag(), $accesses));
+        global $_User;
+        return (empty($accesses) || in_array($_User->getAccountType()->getFlag(), $accesses));
+    }
+
+    public static function getBackLink() {
+        $httpReferer = filter_input(INPUT_SERVER, 'HTTP_REFERER');
+        $requestURI = filter_input(INPUT_SERVER, 'REQUEST_URI');
+        echo (strpos($httpReferer, $requestURI) === false) ? $httpReferer : '..';
     }
 
 }
-
-?>

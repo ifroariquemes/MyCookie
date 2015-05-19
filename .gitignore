@@ -1,6 +1,7 @@
 nbproject/
 vendor/
 /cache/
+/components/build*.*
 /components/bundle.css
 /components/bundle.js
 /src/lang/_po/

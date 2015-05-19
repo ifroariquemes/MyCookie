@@ -83,7 +83,7 @@ function TMyCookieJS() {
             $('body').append(modalbackdrop);
         }
 
-        $(popupId).remove();
+        $(String.format("#{0}", popupId)).remove();
 
         modalcontent = document.createElement('div');
         $(modalcontent)
@@ -111,7 +111,7 @@ function TMyCookieJS() {
                 .append(modaldialog)
                 .append(modalprevious)
                 .on('shown.bs.modal', function() {
-                    if (typeof (onShow) === 'function') {                        
+                    if (typeof (onShow) === 'function') {
                         onShow();
                     }
                 })
@@ -152,16 +152,17 @@ function TMyCookieJS() {
          throw 2;
          }  */
         requestType = (typeof (requestType) !== 'string') ? 'POST' : requestType;
-        self.showWaitMessage('');
+        self.showWaitMessage();
         setTimeout(function() {
             $.ajax({
-                async: false,
+                async: true,
                 type: requestType,
                 url: self.mountURL(moduleAction, false),
                 data: data,
                 success: function(returning) {
                     self.closeWaitMessage();
                     self.showStaticPopup(popupId, returning);
+                    $(popupId).attr('data-action', moduleAction).attr('data-data', data);
                 }
             });
         }, 500);
@@ -170,6 +171,11 @@ function TMyCookieJS() {
          MyCookieJSErrors.Handle(erro);
          return false;
          }*/
+    };
+
+    this.refreshPopup = function(popupId) {
+        popupId = String.format("#{0}", popupId);
+        $(popupId).children('.modal-content').html(MyCookieJS.execute($(popupId).attr('data-action'), $(popupId).attr('data-data')));
     };
 
 
@@ -181,7 +187,7 @@ function TMyCookieJS() {
      * @param bool assincrono Define se a execucao da acao de ser assincrona. Por padrao a funcao e sincrona.
      * @param string tipoEncapsulamento: Define o tipo de encapsulmento dos dados: GET ou POST(padrao, se nulo)
      * @example _MyCookie.ExecutarAcao('noticias/deletar','id=1',true,'POST');      */
-    this.execute = function(moduleAction, data, isAsync, requestType) {
+    this.execute = function(moduleAction, data, isAsync, onSuccess, requestType) {
         var returning;
         try {
             if (moduleAction === null) {
@@ -196,46 +202,49 @@ function TMyCookieJS() {
                 data: data,
                 success: function(executionReturn) {
                     returning = executionReturn;
+                    if (typeof (onSuccess) === 'function') {
+                        onSuccess(returning);
+                    }
                 }
 
             });
             return returning;
         }
         catch (error) {
+            console.log(error);
             MyCookieJSErrors.Handle(error);
             return false;
         }
     }
 
     /**
-     * Fecha uma janela popup
-     * @param string nomePopup: Nome da janela que sera fechada
-     * @example _MyCookie.FecharPopup('FrmNoticia');
+     * Closes a popup
+     * @param string popupName(id) Popup name to close, leave null if want to close actual
+     * @example MyCookieJS.closePopup('MyPopup');
      */
-    this.closePopup = function(nomePopup, estaAbrindoPopup) {
-
-        var idPopup, PopupAnterior, idPopupAnterior;
-
-        openingPopup = (estaAbrindoPopup != null) ? estaAbrindoPopup : false;
-
-        nomePopup = (nomePopup == null) ? $('.modal.in').attr('id') : nomePopup;
-
-        idPopup = String.format('#{0}', nomePopup);
-
-        $(idPopup).modal('hide');
-
-    }
+    this.closePopup = function(popupName, isOpeningPopup) {
+        openingPopup = (typeof (isOpeningPopup) === 'boolean') ? isOpeningPopup : false;
+        popupName = (typeof (popupName) === 'string') ? popupName : $('.modal.in').attr('id');
+        if (typeof (popupName) !== 'undefined') {
+            idPopup = String.format('#{0}', popupName);
+            $(idPopup).modal('hide');
+        }
+    };
 
     this.closeAllPopups = function() {
-        $('.modal').remove();
+        $('.modal').modal('hide');
         $('.modal-backdrop').remove();
-    }
+    };
 
-    this.gotoPopup = function(namePopup) {
+    this.gotoPopup = function(namePopup, onShown) {
         self.closePopup(null, true);
+        fShown = (typeof (onShown) === 'function') ? onShown : function(e) {};
         setTimeout(function() {
             openingPopup = false;
-            $(String.format('#{0}', namePopup)).modal('show');
+            $(String.format('#{0}', namePopup)).on('shown.bs.modal', function(e) {
+                fShown(e);
+                $(String.format('#{0}', namePopup)).unbind('shown.bs.modal');
+            }).modal('show');
         }, 700);
     };
 
@@ -270,7 +279,8 @@ function TMyCookieJS() {
     }
 
     this.showWaitMessage = function(msg) {
-        self.showStaticPopup('aguarde-box', '<h1 class="align-center">Aguarde<h1><h3 class="align-center">...</h3><h3 class="align-center">' + msg + '</h3>');
+        msg = typeof (msg) === "string" ? msg : 'Obtendo dados do servidor...';
+        self.showStaticPopup('aguarde-box', String.format('<div class="modal-header"><h4 class="modal-title">Aguarde <img src="{0}{1}" title="carregando" alt="carregando"></h4></div><div class="modal-body"><p>{2}</p></div>', self.getSite(), 'src/assets/images/loading1.gif', msg));
     }
 
     this.closeWaitMessage = function() {
@@ -412,7 +422,7 @@ function TMyCookieJS() {
 
     this.confirm = function(messageStr, onYes, onNo, closeAtConfirm) {
         var modalcontent, modalheader, header, modalbody, message, modalfooter, yesIcon, yesButton, noIcon, noButton;
-        var title = 'Confirmação';
+        var title = MYCOOKIEJS_CONFIRMATION;
         closeAtConfirm = (typeof (closeAtConfirm) === 'boolean') ? closeAtConfirm : true;
 
         header = document.createElement('h4');
@@ -439,7 +449,7 @@ function TMyCookieJS() {
         $(yesButton)
                 .addClass('btn btn-success')
                 .append(yesIcon)
-                .append(' Sim')
+                .append(' ' + MYCOOKIEJS_YES)
                 .click(function() {
                     confirmResult = true;
                     if (typeof (onYes) === 'function') {
@@ -460,7 +470,7 @@ function TMyCookieJS() {
         $(noButton)
                 .addClass('btn btn-danger')
                 .append(noIcon)
-                .append(' Não')
+                .append(' ' + MYCOOKIEJS_NO)
                 .click(function() {
                     confirmResult = false;
                     if (typeof (onNo) === 'function') {
@@ -482,17 +492,19 @@ function TMyCookieJS() {
                 .append(noButton);
 
         modalcontent = document.createElement('div');
-        $(modalcontent)                
+        $(modalcontent)
                 .append(modalheader)
                 .append(modalbody)
-                .append(modalfooter);        
+                .append(modalfooter);
 
-        MyCookieJS.showStaticPopup('ConfirmBS', modalcontent, function() { $(yesButton).focus(); });
+        MyCookieJS.showStaticPopup('ConfirmBS', modalcontent, function() {
+            $(yesButton).focus();
+        });
     };
 
     this.alert = function(messageStr, gotoPopup) {
         var modalcontent, modalheader, header, modalbody, message, modalfooter, okButton;
-        title = 'Mensagem do sistema';
+        title = MYCOOKIEJS_ALERT;
 
         header = document.createElement('h4');
         $(header).append(title);
@@ -547,7 +559,7 @@ function TMyCookieJS() {
         $(modalcontent)
                 .append(modalheader)
                 .append(modalbody)
-                .append(modalfooter);      
+                .append(modalfooter);
 
         MyCookieJS.showStaticPopup('AlertBS', modalcontent, function() {
             $(okButton).focus();

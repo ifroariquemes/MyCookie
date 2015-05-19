@@ -1,5 +1,5 @@
 <?php global $_MyCookie; ?>
-<?php global $_MyCookieUser; ?>
+<?php global $_User; ?>
 <?php if (!empty($data)) : ?>
     <table class="table table-striped">
         <thead>
