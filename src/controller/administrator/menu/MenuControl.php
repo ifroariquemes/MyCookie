@@ -4,32 +4,40 @@ namespace controller\administrator\menu;
 
 use model\administrator\menu\Menu;
 
-class MenuControl {
+class MenuControl
+{
 
-    public static function ListCurrentModuleName() {
+    public static function listCurrentModuleName()
+    {
         global $_MyCookie;
-        return MenuControl::LoadMenu($_MyCookie->getModule(), false)->getName();
+        return MenuControl::loadMenu($_MyCookie->getModule(), false)->getName();
     }
 
-    public static function ListModuleNames() {
+    public static function listModuleNames()
+    {
         global $_MyCookie;
-        $data = MenuControl::LoadMenus();
+        $data = MenuControl::loadMenus();
         $_MyCookie->loadView('administrator/menu', 'ListNames', $data);
     }
 
-    public static function ListModuleIcons() {
+    public static function listModuleIcons()
+    {
         global $_MyCookie;
-        $data = MenuControl::LoadMenus();
-        $_MyCookie->loadView('administrator/menu', 'ListIcons', $data);
+        $data = MenuControl::loadMenus();
+        $_MyCookie->loadView('administrator/menu', 'listIcons', $data);
     }
 
-    private static function LoadMenus() {
+    private static function loadMenus()
+    {
         $menuList = array();
         $menuListRet = array();
+        $pathNotAllowed = array(
+            '.', '..',
+            'administrator.php', 'index.php', 'build.php');
         $hDiretorio = opendir('src/config');
         while ($hModule = readdir($hDiretorio)) {
-            if (!in_array($hModule, array('.', '..', 'administrator.php', 'index.php', 'build.php'))) {
-                if (($menuOption = MenuControl::LoadMenu($hModule)) !== false) {
+            if (!in_array($hModule, $pathNotAllowed)) {
+                if (($menuOption = MenuControl::loadMenu($hModule)) !== false) {
                     array_push($menuList, $menuOption);
                     array_push($menuListRet, $hModule);
                 }
@@ -39,25 +47,33 @@ class MenuControl {
         return $menuList;
     }
 
-    private static function LoadMenu($moduleConfigFile, $verifyAccessLevel = true) {
+    private static function loadMenu($mConfigFile, $checkAccessLevel = true)
+    {
         global $_MyCookie;
-        $modulePathName = explode('.', $moduleConfigFile)[0];
-        $moduleConfig = $_MyCookie->getModuleConfiguration($modulePathName);
-        if (empty($moduleConfig->getName())) {
-            throw new \Exception("The $modulePathName module needs a name.");
+        $mPathName = explode('.', $mConfigFile)[0];
+        $mConfig = $_MyCookie->getModuleConfiguration($mPathName);
+        if (empty($mConfig->getName())) {
+            throw new \Exception("The $mPathName module needs a name.");
         }
-        return (MenuControl::VerifyAccessLevel($moduleConfig->getAccesses()) || !$verifyAccessLevel) ? new Menu($modulePathName, $moduleConfig) : false;
+        return (MenuControl::checkAccessLevel($mConfig->getAccesses()) ||
+                !$checkAccessLevel) ?
+                new Menu($mPathName, $mConfig) :
+                false;
     }
 
-    private static function VerifyAccessLevel($accesses) {
-        global $_User;
-        return (empty($accesses) || in_array($_User->getAccountType()->getFlag(), $accesses));
+    private static function checkAccessLevel($accesses)
+    {
+        global $_User;        
+        return (empty($accesses) ||
+                in_array($_User->getAccountType()->getFlag(), $accesses));
     }
 
-    public static function getBackLink() {
+    public static function getBackLink()
+    {
         $httpReferer = filter_input(INPUT_SERVER, 'HTTP_REFERER');
         $requestURI = filter_input(INPUT_SERVER, 'REQUEST_URI');
-        echo (strpos($httpReferer, $requestURI) === false) ? $httpReferer : '..';
+        return (strpos($httpReferer, $requestURI) === false) ?
+                $httpReferer :
+                '..';
     }
-
 }

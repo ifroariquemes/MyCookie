@@ -5,8 +5,8 @@ namespace lib\util;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
 
-class Database {
-
+class Database
+{
     const DevMode = true;
 
     private $entityManager;
@@ -21,7 +21,8 @@ class Database {
      * The singleton method
      * @return Database
      */
-    private static function singleton() {
+    private static function getInstance()
+    {
         if (!isset(self::$instance)) {
             $c = __CLASS__;
             self::$instance = new $c;
@@ -29,7 +30,8 @@ class Database {
         return self::$instance;
     }
 
-    public function __construct() {
+    public function __construct()
+    {
         $myCookieConfiguration = json_decode(file_get_contents('config.json'));
         $this->entityManager = EntityManager::create(array(
                     'driver' => "pdo_{$myCookieConfiguration->database->driver}",
@@ -39,11 +41,10 @@ class Database {
                         ), Setup::createAnnotationMetadataConfiguration(array("src/model/"), Database::DevMode));
     }
 
-    public static function EntityManager() {
-        return Database::singleton()->entityManager;
+    public static function EntityManager()
+    {
+        return Database::getInstance()->entityManager;
     }
-
 }
-
 global $_EntityManager;
 $_EntityManager = Database::EntityManager();

@@ -1,35 +1,23 @@
 <?php
+        const AUTOLOAD_FILE = 'vendor/autoload.php';
 
-        const Autoload = 'vendor/autoload.php';
-
-if (!file_exists(Autoload)) {
+if (!file_exists(AUTOLOAD_FILE)) {
     include ('src/view/build/composer-run.php');
     exit;
 }
 
-require_once (Autoload);
+require_once (AUTOLOAD_FILE);
 
-session_start(); 
-
-/**
- * @var Doctrine\ORM\EntityManager ORM Manager
- */
-global $_EntityManager;
-/**
- * @var Modules\User\User The logged user
- */
+global $_MyCookie;
+global $_Config;
 global $_User;
 global $_Server;
-/**
- * @var Lib\TMyCookie Framework management;
- */
-global $_MyCookie;
-
 global $_Cache;
-
 global $_Async;
+global $_EntityManager;
+global $_BaseURL;
 
-$_MyCookie = lib\MyCookie::singleton();
+$_MyCookie = lib\MyCookie::getInstance();
 $gatewayClass = $_MyCookie->getGatewayClass();
 $gatewayControl = new $gatewayClass;
 $gatewayControl->Route();

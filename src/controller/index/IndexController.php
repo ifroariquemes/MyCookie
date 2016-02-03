@@ -2,13 +2,15 @@
 
 namespace controller\index;
 
-use lib;
+class IndexController extends \lib\util\Router
+{
 
-class IndexController extends lib\util\Router {
-
-    public function ShowPage($view = null) {
+    public function showPage($view = null)
+    {
         global $_Cache;
         global $_Async;
+        global $_MyCookie;
+        global $_BaseURL;
         if (is_null($view)) {
             ob_start();
             include('src/view/index/main.php');
@@ -28,7 +30,4 @@ class IndexController extends lib\util\Router {
             echo $page;
         }
     }
-
 }
-
-?>

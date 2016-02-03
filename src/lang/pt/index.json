@@ -1,0 +1,9 @@
+{
+    "site": {
+        "title": "MyCookie - Página Inicial"
+    },
+    "header": {
+        "title": "Bem-vindo ao MyCookie!",
+        "subtitle": "um Framework PHP"
+    }
+}

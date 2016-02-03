@@ -12,7 +12,7 @@ class Server
     private $os;
     private static $instance;
 
-    public static function singleton()
+    public static function getInstance()
     {
         if (!isset(self::$instance)) {
             $c = __CLASS__;

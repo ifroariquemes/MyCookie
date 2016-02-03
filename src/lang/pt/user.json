@@ -1,0 +1,64 @@
+{
+    "label": {
+        "name": "Nome",
+        "mid_name": "Nome do meio",
+        "last_name": "Sobrenome",
+        "email": "E-mail",
+        "account_type": "Tipo da conta",
+        "select_acc": "Selecione um tipo de conta...",
+        "username": "Nome de usuário",
+        "password": "Senha",
+        "new_password": "Nova senha",
+        "repeat_new_pwd": "Repetir nova senha",
+        "repeat_pwd": "Repetir senha",
+        "add_user": "Adicionando usuário",
+        "edit_user": "Editando usuário",
+        "email_details": "Enviar e-mail com detalhes da conta para o novo usuário?"
+    },
+    "message": {
+        "change": "Quer mudar a senha?",
+        "deactivated": "Este usuário está desativado",
+        "pwd_minimum": "mínimo de 6 caracteres",
+        "empty": "Não há usuário com este tipo de conta",
+        "incorrect_pwd": "Senha inválida",
+        "not_match_pwd": "Senhas não coincidem",
+        "user_deactivated": "Usuário desativado com sucesso!",
+        "user_reactivated": "Usuário reativado com sucesso!",
+        "pwd_chagend": "Senha alterada com sucesso!",
+        "user_deleted": "Usuário deletado com sucesso!",
+        "user_saved": "Usuário salvo com sucesso!",
+        "question_delete": "Realmente deseja deletar este usuário?",
+        "saving": "Salvando seus dados de usuário...",
+        "deactivated_login": "Conta não confirmada ainda. Por favor, verifique seu e-mail ou solicite novamente o link de confirmação abaixo.",
+        "bad_login": "E-mail ou senha inválidos"
+    },
+    "button": {
+        "change_pwd": "Alterar senha",
+        "deactivate": "Desativar usuário",
+        "reactivate": "Reativar usuário?",
+        "delete": "Deletar usuário"
+    },
+    "email": {
+        "new_subject": "Sua nova conta em",
+        "check": "Nós enviamos um e-mail de confirmação, por favor, verifique seu e-mail para user este serviço.",
+        "exists": "Este e-mail já existe.",
+        "no_account": "Não existe conta registrada com este e-mail.",
+        "key_not_recog": "Chave não reconhecida.",
+        "hello": "Olá",
+        "automatic": "Este é um e-mail automático. Não o responda.",
+        "public_1": "Este e-mail foi enviado porque recebemos uma solicitação de cadastro em nosso sistema",
+        "public_2": "Para confirmar seu cadastro, por favor, clique no link abaixo ou copie e cole-o na barra de endereço do seu navegador",
+        "public_3": "Se você não solicitou cadastro em nosso sistema, contate-nos através do e-mail",
+        "public_4": "e desconsidere este e-mail",
+        "internal_1": "Este e-mail foi enviado porque você foi registrado em nosso sistema pela administração",
+        "internal_2": "Suas credenciais são",
+        "internal_3": "O sistema está acessível em",
+        "internal_4": "Por favor, guarde este e-mail para consulta no futuro"
+    },
+    "confirmed": {
+        "title": "Usuário confirmado!",
+        "line_1": "Paranbéns! Agora você está pronto para usar nossos serviços.",
+        "line_2": "Por favor, siga para o login para continuar.",
+        "button": "Ir para login"
+    }
+}

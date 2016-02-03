@@ -14,7 +14,8 @@
         "php": ">=5.3.0",
         "doctrine/orm": "*",
         "sheillendra/metro-bootstrap": "dev-master",
-        "ckeditor/ckeditor": "dev-master",        
+        "phpmailer/phpmailer": "dev-master",
+        "ckeditor/ckeditor": "dev-master"        
     },
     "autoload": {
         "psr-4": {

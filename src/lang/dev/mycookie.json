@@ -1,0 +1,24 @@
+{
+    "window": {
+        "alert": "System message",
+        "confirmation": "Confirmation"
+    },
+    "button": {
+        "yes": "Yes",
+        "no": "No",
+        "cancel": "Cancel",
+        "save": "Save",
+        "edit": "Edit",
+        "search": "Search"
+    },
+    "status": {
+        "activated": "Activated",
+        "deactivated": "Deactivated"
+    },
+    "message": {
+        "wait": "Please wait",
+        "wait_server": "Waiting server response...",        
+        "search_pla": "Quick search...",
+        "search_result": "Results searching for"
+    }
+}

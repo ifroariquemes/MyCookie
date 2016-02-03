@@ -6,41 +6,55 @@ use lib\util\Router;
 use controller\user\UserController;
 use model\user\accountType\AccountType;
 
-class AdministratorController extends Router {
-
+class AdministratorController extends Router
+{
     private $userControl;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->userControl = new UserController();
     }
 
-    public static function VerifyAdministratorLoggedIn() {
-        if (!UserController::isAdministratorLoggedIn()) {
-            AdministratorController::ShowLogin();
+    public static function checkUserLoggedIn()
+    {
+        global $_Config;
+        if ($_Config->allowPublicSignup) {
+            if (!UserController::isUserLoggedIn()) {
+                AdministratorController::showLogin();
+                exit;
+            }
+        } else if (!UserController::isAdministratorLoggedIn()) {
+            AdministratorController::showLogin();
             exit;
         }
     }
 
-    public static function ShowLogin() {
-        /* @var $_MyCookie \lib\MyCookie */
+    public static function showLogin()
+    {
         global $_MyCookie;
+        global $_Cache;
         $account = AccountType::select('a')->getQuery()->execute();
         if (count($account) === 0) {
-            UserController::firstRun();             
+            UserController::firstRun();
         }
-        $_MyCookie->loadView('administrator', 'Login');
-        //unset($_SESSION[MyCookie::MessageSession]);
+        $_Cache->doCache = false;
+        ob_start();
+        $_MyCookie->loadView('administrator', 'login');
+        $view = ob_get_contents();
+        ob_end_clean();
+        $_Cache->doCache($view);
+        echo $view;
+        $_SESSION[\lib\MyCookie::MESSAGE_SESSION] = '';
     }
 
-    public function ShowPage($view = null, $ajax = false) {
-        /* @var $_MyCookie \lib\MyCookie */
+    public function showPage($view = null, $ajax = false)
+    {
         global $_MyCookie;
-        /* @var $_Cache \lib\util\Cache */
         global $_Cache;
-        $this->VerifyAdministratorLoggedIn();
+        $this->checkUserLoggedIn();
         if (is_null($view)) {
             ob_start();
-            $_MyCookie->loadView('administrator', 'Main');            
+            $_MyCookie->loadView('administrator', 'Main');
             $view = ob_get_contents();
             ob_end_clean();
         }
@@ -49,19 +63,11 @@ class AdministratorController extends Router {
             echo $view;
         } else {
             ob_start();
-            $_MyCookie->LoadTemplate('administrator', 'Template', $view);            
+            $_MyCookie->loadTemplate('administrator', 'Template', $view);
             $page = ob_get_contents();
             ob_end_clean();
             $_Cache->doCache($page);
             echo $page;
         }
     }
-
-    public static function ModuleHeader($nomeModulo, $voltarPara) {
-
-        include('administrador.view.cabecalho.php');
-    }
-
 }
-
-?>

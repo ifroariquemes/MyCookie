@@ -4,13 +4,14 @@ namespace controller\build;
 
 class BuildFileController
 {
-
     const RJSFile = 'components/r.js';
     const BuildJSFile = 'components/build-js.js';
     const BuildCSSFile = 'components/build-css.js';
     const BuildJSConfigFile = 'components/build-config.js';
     const BuildCSSConfigFile = 'components/build-config.css';
-    const BuildMyCookieJSVariablesFile = 'components/mycookie.js.php';
+    const BuildMyCookieJSVariablesFile = 'components/mycookie.js';
+    const I18N_CONFIG_FILE = 'components/i18next.config.js';
+    const I18N_DEFAULT_PATH = 'src/lang/dev';
     const SourceJS = 'src/assets/js';
     const SourceCSS = 'src/assets/css';
     const SourceViews = 'src/view';
@@ -19,31 +20,22 @@ class BuildFileController
 
     public function createBuildJS($jsFiles)
     {
+        global $_MyCookie;
         unlink(self::BuildJSFile);
         $fp = fopen(self::BuildJSFile, 'w+');
-        fwrite($fp, "({\n");
-        fwrite($fp, "   baseUrl: \"../\",\n");
-        fwrite($fp, "   paths: {\n");
-        foreach ($jsFiles as $key => $value) {
-            fwrite($fp, sprintf("       %s: \"%s\",\n", $key, $value));
-        }
-        fwrite($fp, "   },\n");
-        fwrite($fp, "   name: \"components/build-config\",\n");
-        fwrite($fp, "   out: \"bundle.js\"\n");
-        fwrite($fp, "})");
+        $content = $_MyCookie->loadView('build', 'build-js', $jsFiles, true);
+        fwrite($fp, $content);
         fclose($fp);
         $this->createBuildJSConfig($jsFiles);
     }
 
     private function createBuildJSConfig($jsFiles)
     {
+        global $_MyCookie;
         unlink(self::BuildJSConfigFile);
         $fp = fopen(self::BuildJSConfigFile, 'w+');
-        fwrite($fp, 'require([');
-        foreach ($jsFiles as $key => $value) {
-            fwrite($fp, "'$key',");
-        }
-        fwrite($fp, '], function() { });');
+        $c = $_MyCookie->loadView('build', 'build-config', $jsFiles, true);
+        fwrite($fp, $c);
         fclose($fp);
     }
 
@@ -79,64 +71,35 @@ class BuildFileController
         array_map('unlink', glob('cache/*'));
     }
 
-    public function generatePortableObjects()
-    {
-        $fHandle = opendir(self::SourceViews);
-        array_map('unlink', glob(sprintf('%s/_po/*', self::SourceLang)));
-        while (($file = readdir($fHandle)) !== false) {
-            if ($file !== '.' && $file !== '..') {
-                if (count(scandir(sprintf('%s/%s', self::SourceViews, $file))) > 2) {
-                    if (!BuildCommandController::generatePortableObject($file)) {
-                        exit;
-                    }
-                    $fileName = sprintf('%s/_po/%s.po', self::SourceLang, $file);
-                    if (file_exists($fileName)) {
-                        $c = file_get_contents($fileName);
-                        $c = str_replace('charset=CHARSET', 'charset=UTF-8', $c);
-                        file_put_contents($fileName, $c);
-                    }
-                }
-            }
-        }
-        echo 'OK';
-    }
-
-    public function generateMachineObjects()
-    {
-        array_map('unlink', glob(sprintf('%s/*.mo', self::SourceLang)));
-        foreach ($this->SeekFiles(self::SourceLang, 'po') as $po) {
-            if (strpos($po, '_po') === false) {
-                if (!BuildCommandController::generateMachineObject($po)) {
-                    exit;
-                }
-            }
-        }
-        echo 'OK';
-    }
-
     public function buildMyCookieJSVariables()
     {
+        global $_BaseURL;
+        $fp = file(self::BuildMyCookieJSVariablesFile);
+        array_pop($fp);
+        array_push($fp, "MYCOOKIEJS_BASEURL = '$_BaseURL';");
         unlink(self::BuildMyCookieJSVariablesFile);
-        $fp = fopen(self::BuildMyCookieJSVariablesFile, 'w+');
-        foreach ($this->SeekFiles(self::SourceModulesConfig) as $module) {
-            $moduleInfo = explode('/', $module);
-            $ns.= sprintf("'%s',", explode('.', end($moduleInfo))[0]);
+        file_put_contents(self::BuildMyCookieJSVariablesFile, $fp);
+    }
+
+    public function createI18NConfig()
+    {
+        global $_MyCookie;
+        global $_BaseURL;
+        global $_Config;
+        $ns = '';
+        foreach ($this->seekFiles(self::I18N_DEFAULT_PATH, 'json') as $file) {
+            $pathInfo = explode('/', $file);
+            $fileInfo = explode('.', end($pathInfo));
+            $ns .= "'{$fileInfo[0]}',";
         }
         $ns = substr($ns, 0, -1);
-        $content = <<<CONTENT
-<?php global \$_MyCookie; ?>
-<script type="text/javascript">
-    MYCOOKIEJS_ACTION = '<?php echo \$_MyCookie->getAction(); ?>';
-    MYCOOKIEJS_MODULE = '<?php echo \$_MyCookie->getModule(); ?>';
-    MYCOOKIEJS_AUXILIARMODULE = '<?php echo \$_MyCookie->getAuxiliarModule(); ?>';
-    MYCOOKIEJS_NAMESPACE = '<?php echo str_replace('\\\\', '\\\\\\\\', \$_MyCookie->getNamespace()); ?>';
-    MYCOOKIEJS_SITE = '<?php echo \$_MyCookie->getSite(); ?>';
-    MYCOOKIEJS_ALERT = '<?php _e('System message', 'administrator') ?>';
-    MYCOOKIEJS_CONFIRMATION = '<?php _e('Confirmation', 'administrator') ?>';
-    MYCOOKIEJS_YES = '<?php _e('Yes', 'administrator') ?>';
-    MYCOOKIEJS_NO = '<?php _e('No', 'administrator') ?>';    
-</script>
-CONTENT;
+        unlink(self::I18N_CONFIG_FILE);
+        $fp = fopen(self::I18N_CONFIG_FILE, 'w+');
+        $content = $_MyCookie->loadView('build', 'i18n.config'
+                , array(
+            'lang' => $_Config->lang,
+            'ns' => $ns,
+            'site' => $_BaseURL), true);
         fwrite($fp, $content);
         fclose($fp);
     }
@@ -171,5 +134,4 @@ CONTENT;
             return $files;
         }
     }
-
 }

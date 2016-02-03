@@ -2,11 +2,8 @@
 
 namespace controller\build;
 
-use lib\util\Server;
-
 class BuildController
 {
-
     private $bfCtrl;
     private $bmCtrl;
     private $cssFiles = array();
@@ -18,12 +15,22 @@ class BuildController
         $this->bmCtrl = new BuildCommandController();
     }
 
+    public function getCSSFiles()
+    {
+        return $this->cssFiles;
+    }
+
+    public function getJSFiles()
+    {
+        return $this->jsFiles;
+    }
+
     public function build()
     {
         global $_MyCookie;
-        global $_Async;        
+        global $_Async;
         $_Async = true;
-        $_MyCookie->loadView('build', 'build');         
+        $_MyCookie->loadView('build', 'build');
     }
 
     public function addJS($fileId, $filePath)
@@ -44,13 +51,17 @@ class BuildController
         }
     }
 
-    public function createBuildJS()
+    public function createBuildJS($internal = false)
     {
-        global $_MyCookie;
-        if ($this->checkPassword()) {
-            $config = $_MyCookie->getMyCookieConfiguration();
+        global $_Config;
+        if ($this->checkPassword() || $internal) {
+            $this->bfCtrl->createI18NConfig();
+            $this->bfCtrl->buildMyCookieJSVariables();
+            $this->addJS('jquery', 'components/jquery');
             $this->addJS('mycookie', 'components/mycookie');
-            foreach ($config->build->custom_js as $key => $value) {
+            $this->addJS('i18next', 'components/i18next');
+            $this->addJS('i18next_config', 'components/i18next.config');
+            foreach ($_Config->build->custom_js as $key => $value) {
                 $this->addJS($key, $value);
             }
             $files = $this->bfCtrl->seekFiles(BuildFileController::SourceJS, 'js');
@@ -60,25 +71,28 @@ class BuildController
                 $fileId = sprintf('%s_%s', array_pop($fileName), array_pop($fileName));
                 $this->addJS($fileId, $filePath[0]);
             }
-            $this->bfCtrl->createBuildJS($this->jsFiles);
+            if (!$internal) {
+                $this->bfCtrl->createBuildJS($this->jsFiles);
+            }
         } else {
             echo 'The password does\'t match';
         }
     }
 
-    public function createBuildCSS()
+    public function createBuildCSS($internal = false)
     {
-        global $_MyCookie;
-        if ($this->CheckPassword()) {
-            $config = $_MyCookie->getMyCookieConfiguration();
-            foreach ($config->build->custom_css as $key => $value) {
+        global $_Config;
+        if ($this->CheckPassword() || $internal) {
+            foreach ($_Config->build->custom_css as $key => $value) {
                 $this->addCSS($value);
             }
             $files = $this->bfCtrl->seekFiles(BuildFileController::SourceCSS, 'css');
             foreach ($files as $css) {
                 $this->addCSS($css);
             }
-            $this->bfCtrl->createBuildCSS($this->cssFiles);
+            if (!$internal) {
+                $this->bfCtrl->createBuildCSS($this->cssFiles);
+            }
         }
     }
 
@@ -97,13 +111,6 @@ class BuildController
             $this->bmCtrl->createCSSBundle();
         } else {
             echo 'The password does\'t match';
-        }
-    }
-
-    public function buildMyCookieJSVariables()
-    {
-        if ($this->CheckPassword()) {
-            $this->bfCtrl->buildMyCookieJSVariables();
         }
     }
 
@@ -127,10 +134,9 @@ class BuildController
 
     private function checkPassword()
     {
-        global $_MyCookie;
-        $myCookieConfiguration = $_MyCookie->getMyCookieConfiguration();
+        global $_Config;
         return filter_input(INPUT_POST, 'password') ===
-                md5($myCookieConfiguration->build->password);
+                md5($_Config->build->password);
     }
 
     public function checkPasswordRet()
@@ -138,24 +144,8 @@ class BuildController
         var_export($this->CheckPassword());
     }
 
-    /**
-     * If not generating, please check permissions
-     */
-    public function generatePortableObjects()
+    public function teste()
     {
-        if ($this->CheckPassword()) {
-            $this->bfCtrl->generatePortableObjects();
-        }
+        $this->bfCtrl->createI18NConfig();
     }
-
-    /**
-     * If not generating, please check permissions
-     */
-    public function generateMachineObjects()
-    {
-        if ($this->CheckPassword()) {
-            $this->bfCtrl->generateMachineObjects();
-        }
-    }
-
 }

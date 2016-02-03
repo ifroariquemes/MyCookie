@@ -5,16 +5,20 @@ namespace controller\user;
 use lib\MyCookie;
 use model\user\accountType\AccountType;
 use model\user\User;
+use lib\util\Pagination;
 
-class UserController {
+class UserController
+{
 
-    public function __construct() {
-        if (!array_key_exists(MyCookie::MESSAGE_SESSION, $_SESSION)) {
+    public function __construct()
+    {
+        if (!isset($_SESSION[MyCookie::MESSAGE_SESSION])) {
             $_SESSION[MyCookie::MESSAGE_SESSION] = '';
         }
     }
 
-    public static function firstRun() {
+    public static function firstRun()
+    {
         $acAdmin = new AccountType();
         $acAdmin->setFlag('ADMINISTRATOR');
         $acAdmin->setName('Administrator');
@@ -24,84 +28,159 @@ class UserController {
         $acUser->setName('User');
         $acUser->save();
         $uAdmin = new User();
-        $uAdmin->setName('Administrator');
-        $uAdmin->setLastName('Default');
-        $uAdmin->setLogin('admin');
+        $uAdmin->setName('Administrator Default');
+        $uAdmin->setEmail('admin');
         $uAdmin->setPassword('admin');
         $uAdmin->setAccountType($acAdmin);
         $uAdmin->save();
     }
 
-    public static function manage() {
+    public static function manage()
+    {
         global $_MyCookie;
-        UserController::VerifyAccessLevel('ADMINISTRATOR');
-        $_MyCookie->loadView('user', 'Manage');
+        UserController::checkAccessLevel('ADMINISTRATOR');
+        $urlPage = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT);
+        $urlPage = ($urlPage) ? $urlPage : 1;
+        $data = Pagination::paginate(User::select('u'), $urlPage);
+        $_MyCookie->loadView('user', 'manage'
+                , array(
+            'users' => $data,
+            'currentPage' => $urlPage,
+            'pages' => Pagination::getPages($data)));
     }
 
-    public static function add() {
+    public static function search()
+    {
         global $_MyCookie;
-        UserController::VerifyAccessLevel('ADMINISTRATOR');
-        $_MyCookie->loadView('user', 'Edit', array('action' => 'Add', 'user' => new User));
+        UserController::checkAccessLevel('ADMINISTRATOR');
+        $urlPage = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT);
+        $urlPage = ($urlPage) ? $urlPage : 1;
+        $q = filter_input(INPUT_GET, 'q');
+        $data = Pagination::paginate(User::select('u')
+                                ->where(User::expr()->like('u.name', '?1'))
+                                ->setParameter(1, sprintf('%%%s%%', $q))
+                        , $urlPage);
+        $_MyCookie->loadView('user', 'manage'
+                , array(
+            'users' => $data,
+            'currentPage' => $urlPage,
+            'pages' => Pagination::getPages($data),
+            'searchTerm' => $q));
     }
 
-    public static function edit() {
+    public static function add()
+    {
+        global $_MyCookie;
+        UserController::checkAccessLevel('ADMINISTRATOR');
+        $_MyCookie->loadView('user', 'edit', array('action' => 'add', 'user' => new User));
+    }
+
+    public static function edit()
+    {
         global $_MyCookie;
         global $_User;
         $user = User::select('u')->where('u.id =  ?1')
                         ->setParameter(1, $_MyCookie->getURLVariables(2))->getQuery()->getSingleResult();
         if ($_User->getId() != $user->getId()) {
-            UserController::VerifyAccessLevel('ADMINISTRATOR');
+            UserController::checkAccessLevel('ADMINISTRATOR');
         }
-        $_MyCookie->loadView('user', 'Edit', array('action' => 'Edit', 'user' => $user));
+        $_MyCookie->loadView('user', 'edit', array('action' => 'edit', 'user' => $user));
     }
 
-    public static function verifyUsername() {
-        $user = User::select('u')->where('u.login = ?1')->setParameter(1, filter_input(INPUT_POST, 'email'))->getQuery()->getResult();
+    public static function verifyEmail()
+    {
+        global $_MyCookie;
+        $user = User::select('u')->where('u.email = ?1')->setParameter(1, filter_input(INPUT_POST, 'email'))->getQuery()->getResult();
         if (count($user) > 0) {
-            _e('This e-mail already exists.', 'user');
+            echo $_MyCookie->getTranslation('user', 'email.exists');
+            return false;
         }
+        return true;
     }
 
-    public static function resend() {
-        $user = User::select('u')->where('u.login = ?1')->setParameter(1, filter_input(INPUT_POST, 'email'))->getQuery()->getResult();
+    public static function resend()
+    {
+        global $_MyCookie;
+        $user = User::select('u')->where('u.email = ?1')->setParameter(1, filter_input(INPUT_POST, 'email'))->getQuery()->getResult();
         if (count($user) > 0) {
-            self::sendEmail($user[0]);
+            self::sendEmailPublic($user[0]);
         } else {
-            _e('There is no account registred with this e-mail.', 'user');
+            echo $_MyCookie->getTranslation('user', 'email.no_account');
         }
     }
 
-    public static function saveAndEmail() {
-        $user = new User();
-        $user
-                ->setName(filter_input(INPUT_POST, 'name'))
-                ->setLastname(filter_input(INPUT_POST, 'lastName'))
-                ->setLogin(filter_input(INPUT_POST, 'email'))
-                ->setEmail(filter_input(INPUT_POST, 'email'))
-                ->setPassword(filter_input(INPUT_POST, 'newPassword'))
-                ->setAccountType(AccountType::select('a')->where('a.id = ?1')
-                        ->setParameter(1, filter_input(INPUT_POST, 'accountTypeId'))->getQuery()->getSingleResult())
-                ->setStatus(0)
-                ->save();
-        $user->setCode(md5($user->getId()))->save();
-        self::sendEmail($user);
+    public static function forgot()
+    {
+        global $_MyCookie;
+        $user = User::select('u')->where('u.email = ?1')->setParameter(1, filter_input(INPUT_POST, 'email'))->getQuery()->getResult();
+        if (count($user) > 0) {
+            $user[0]->setCode(uniqid('forgot_', true))->save();
+            self::sendEmailForgot($user[0]);
+        } else {
+            echo $_MyCookie->getTranslation('user', 'email.no_account');
+        }
     }
 
-    public static function confirmRegistration() {
+    public static function savePublic()
+    {
+        $user = new User();
+        if (self::verifyEmail()) {
+            $user
+                    ->setName(filter_input(INPUT_POST, 'name'))
+                    ->setEmail(filter_input(INPUT_POST, 'email'))
+                    ->setPassword(filter_input(INPUT_POST, 'newPassword'))
+                    ->setAccountType(AccountType::select('a')->where('a.flag = ?1')
+                            ->setParameter(1, 'USER')->getQuery()->getSingleResult())
+                    ->setStatus(0)
+                    ->save();
+            $user->setCode(md5($user->getId()))->save();
+            self::sendEmailPublic($user);
+        }
+    }
+
+    public static function confirmRegistration()
+    {
         global $_MyCookie;
         $user = User::select('u')->where('u.code = ?1')->setParameter(1, filter_input(INPUT_GET, 'key'))->getQuery()->getResult();
         if (count($user) > 0) {
             $user[0]->setStatus(1)->save();
-            $_MyCookie->loadView('user', 'Confirmed', filter_input(INPUT_GET, 'return'));
+            $_MyCookie->loadView('user', 'confirmed', filter_input(INPUT_GET, 'return'));
         } else {
-            _e('Key not recognised.', 'user');
+            echo $_MyCookie->getTranslate('user', 'email.key_not_recog');
         }
     }
 
-    public static function sendEmail(User $user) {
+    public static function confirmForgot()
+    {
         global $_MyCookie;
-        $mailConfig = $_MyCookie->getMyCookieConfiguration()->mail;
-        $url = sprintf('%suser/confirmRegistration/?key=%s&return=%s', $_MyCookie->getSite(), $user->getCode(), $_SERVER['HTTP_REFERER']);
+        $user = User::select('u')->where('u.code = ?1')->setParameter(1, filter_input(INPUT_GET, 'key'))->getQuery()->getResult();
+        if (count($user) > 0) {
+            $_MyCookie->loadView('user', 'reset', filter_input(INPUT_GET, 'return'));
+        } else {
+            echo $_MyCookie->getTranslation('user', 'email.key_not_recog');
+        }
+    }
+
+    public static function reset()
+    {
+        global $_MyCookie;
+        $user = User::select('u')->where('u.code = ?1')->setParameter(1, filter_input(INPUT_POST, 'key'))->getQuery()->getResult();
+        if (count($user) > 0) {
+            $user[0]->setPassword(filter_input(INPUT_POST, 'newPassword'))->save();
+            echo $_MyCookie->getTranslation('user', 'message.reset_pwd_ok');
+        } else {
+            echo $_MyCookie->getTranslation('user', 'email.key_not_recog');
+        }
+    }
+
+    public static function sendEmailPublic(User $user)
+    {
+        global $_MyCookie;
+        global $_BaseURL;
+        global $_Config;
+        $mailConfig = $_Config->mail;
+        $url = sprintf('%suser/confirmRegistration/?key=%s&return=%s'
+                , $_BaseURL, $user->getCode(), $_SERVER['HTTP_REFERER']);
         require_once 'vendor/phpmailer/phpmailer/PHPMailerAutoload.php';
         $mail = new \PHPMailer;
         $mail->isSMTP();
@@ -112,106 +191,176 @@ class UserController {
         $mail->SMTPSecure = $mailConfig->security;
         $mail->Username = $mailConfig->username;
         $mail->Password = $mailConfig->password;
-        $mail->setFrom($mailConfig->username, $user->getEmail());
-        $mail->Subject = utf8_decode(sprintf('%s %s', __('Your new account at', 'user') . $_MyCookie->getMyCookieConfiguration()->name));
-        $mail->msgHTML(utf8_decode($_MyCookie->loadView('user', 'Email', array('user' => $user, 'confirmationLink' => $url), true)));
+        $mail->setFrom($mailConfig->email, $_Config->name);
+        $mail->Subject = utf8_decode(sprintf('%s %s', $_MyCookie->getTranslation('user', 'email.new_subject'), $_Config->name));
+        $mail->msgHTML(utf8_decode($_MyCookie->loadView('user', 'email.public', array('user' => $user, 'confirmationLink' => $url), true)));
         $mail->addAddress($user->getEmail());
         $mail->send();
-        _e('We\'ve sent a confirmation link, please check your e-mail to use this service.', 'user');
+        echo $_MyCookie->getTranslation('user', 'email.check');
+    }
+
+    public static function sendEmailForgot(User $user)
+    {
+        global $_MyCookie;
+        global $_BaseURL;
+        global $_Config;
+        $mailConfig = $_Config->mail;
+        $url = sprintf('%suser/confirmForgot/?key=%s&return=%s'
+                , $_BaseURL, $user->getCode(), $_SERVER['HTTP_REFERER']);
+        require_once 'vendor/phpmailer/phpmailer/PHPMailerAutoload.php';
+        $mail = new \PHPMailer;
+        $mail->isSMTP();
+        $mail->SMTPDebug = 0;
+        $mail->SMTPAuth = true;
+        $mail->Host = $mailConfig->host;
+        $mail->Port = $mailConfig->port;
+        $mail->SMTPSecure = $mailConfig->security;
+        $mail->Username = $mailConfig->username;
+        $mail->Password = $mailConfig->password;
+        $mail->setFrom($mailConfig->email, $_Config->name);
+        $mail->Subject = utf8_decode(sprintf('%s %s', $_MyCookie->getTranslation('user', 'email.forgot_subject'), $_Config->name));
+        $mail->msgHTML(utf8_decode($_MyCookie->loadView('user', 'email.forgot', array('user' => $user, 'confirmationLink' => $url), true)));
+        $mail->addAddress($user->getEmail());
+        $mail->send();
+        echo $_MyCookie->getTranslation('user', 'email.check_forgot');
     }
 
     /**
      * 
      * @return User
      */
-    public static function save() {
-        $user = (empty(filter_input(INPUT_POST, 'id'))) ? new User() : User::select('u')->where('u.id =  ?1')
-                        ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
+    public static function save()
+    {
+        global $_MyCookie;
+        global $_User;
+        $user = (empty(filter_input(INPUT_POST, 'id'))) ? new User() :
+                User::select('u')->where('u.id =  ?1')
+                        ->setParameter(1, filter_input(INPUT_POST, 'id'))
+                        ->getQuery()->getSingleResult();
+        if ($_User->getId() != $user->getId()) {
+            UserController::checkAccessLevel('ADMINISTRATOR');
+        }
         $user->setName(filter_input(INPUT_POST, 'name'));
-        $user->setMiddleName(filter_input(INPUT_POST, 'middleName'));
-        $user->setLastname(filter_input(INPUT_POST, 'lastName'));
-        $user->setLogin(filter_input(INPUT_POST, 'login'));
+        if (!$user->getId()) {
+            $user->setEmail(filter_input(INPUT_POST, 'email'));
+        }
         if (!empty(filter_input(INPUT_POST, 'newPassword'))) {
             $user->setPassword(filter_input(INPUT_POST, 'newPassword'));
         }
-        $user->setAccountType(AccountType::select('a')->where('a.id = ?1')
-                        ->setParameter(1, filter_input(INPUT_POST, 'accountTypeId'))->getQuery()->getSingleResult());
+        if (UserController::isAdministratorLoggedIn()) {
+            $user->setAccountType(AccountType::select('a')->where('a.id = ?1')
+                            ->setParameter(1, filter_input(INPUT_POST, 'accountTypeId'))->getQuery()->getSingleResult());
+        }
         $user->save();
+        if (filter_input(INPUT_POST, 'emailDetails')) {
+            self::sendEmailInternal($user, filter_input(INPUT_POST, 'newPassword'));
+        }
         return $user;
     }
 
-    public static function deactivate() {
-        $user = User::select('u')->where('u.id = ?1')
-                        ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
-        $user->setStatus(0);
-        $user->save();
+    public static function sendEmailInternal(User $user, $newPassword)
+    {
+        global $_MyCookie;
+        global $_Config;
+        $mailConfig = $_Config->mail;
+        require_once 'vendor/phpmailer/phpmailer/PHPMailerAutoload.php';
+        $mail = new \PHPMailer;
+        $mail->isSMTP();
+        $mail->SMTPDebug = 0;
+        $mail->SMTPAuth = true;
+        $mail->Host = $mailConfig->host;
+        $mail->Port = $mailConfig->port;
+        $mail->SMTPSecure = $mailConfig->security;
+        $mail->Username = $mailConfig->username;
+        $mail->Password = $mailConfig->password;
+        $mail->setFrom($mailConfig->email, $_Config->name);
+        $mail->Subject = utf8_decode(sprintf('%s %s', $_MyCookie->getTranslation('user', 'email.new_subject'), $_Config->name));
+        $mail->msgHTML(utf8_decode($_MyCookie->loadView('user', 'email.internal', array('user' => $user, 'password' => $newPassword), true)));
+        $mail->addAddress($user->getEmail());
+        $mail->send();
     }
 
-    public static function reactivate() {
+    public static function deactivate()
+    {
+        global $_User;
+        $user = User::select('u')->where('u.id = ?1')
+                        ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
+        if (self::isAdministratorLoggedIn() || $_User->getId() == $user->getId()) {
+            $user->setStatus(0);
+            $user->save();
+        }
+        if ($_User->getId() == $user->getId()) {
+            self::logout(false);
+        }
+    }
+
+    public static function reactivate()
+    {
+        self::checkAccessLevel('ADMINISTRATOR');
         $user = User::select('u')->where('u.id = ?1')
                         ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
         $user->setStatus(1);
         $user->save();
     }
 
-    public static function delete() {
+    public static function delete()
+    {
+        self::checkAccessLevel('ADMINISTRATOR');
         $user = User::select('u')->where('u.id = ?1')
                         ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
         $user->delete();
     }
 
-    public static function checkActualPassword() {
+    public static function checkActualPassword()
+    {
         $user = User::select('u')->where('u.id = ?1')
                         ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
-        echo ($user->getPassword() == md5(filter_input(INPUT_POST, 'actualPassword'))) ? 'true' : 'false';
+        echo (password_verify(filter_input(INPUT_POST, 'actualPassword'), $user->getPassword())) ? 'true' : 'false';
     }
 
-    public static function changePassword() {
+    public static function changePassword()
+    {
+        global $_User;
         $user = User::select('u')->where('u.id = ?1')
                         ->setParameter(1, filter_input(INPUT_POST, 'id'))->getQuery()->getSingleResult();
+        if ($_User->getId() != $user->getId()) {
+            UserController::checkAccessLevel('ADMINISTRATOR');
+        }
         $user->setPassword(filter_input(INPUT_POST, 'newPassword'));
         $user->save();
     }
 
-    public static function getNomeUsuario() {
-
-        $usuario = unserialize($_SESSION['MyCookie_SESSAO_USUARIO']);
-
-        if (is_object($usuario))
-            return $usuario->getName();
-    }
-
-    public static function getSobrenomeUsuario() {
-
-        $usuario = unserialize($_SESSION['MyCookie_SESSAO_USUARIO']);
-
-        if (is_object($usuario))
-            return $usuario->getSobrenome();
-    }
-
-    public function Login() {
+    public function login()
+    {
+        global $_MyCookie;
+        global $_EntityManager;
         $users = User::select('u')
-                ->where('u.login = :login')
-                ->setParameter('login', filter_input(INPUT_POST, 'login'))
+                ->where('u.email = :email')
+                ->setParameter('email', filter_input(INPUT_POST, 'email'))
                 ->getQuery()
                 ->getResult();
-        $_SESSION[MyCookie::MESSAGE_SESSION] = __('Invalid login or password. Please, try again.', 'user');
+        $_SESSION[MyCookie::MESSAGE_SESSION] = $_MyCookie->getTranslation('user', 'message.bad_login');
         if (count($users) == 1) {
-            if ($users[0]->getPassword() == md5(filter_input(INPUT_POST, 'password'))) {
+            $uPass = filter_input(INPUT_POST, 'password');
+            $bPass = $users[0]->getPassword();
+            if (password_verify($uPass, $bPass)) {
                 if ($users[0]->getStatus()) {
+                    $_EntityManager->detach($users[0]);
                     $_SESSION[MyCookie::USER_ID_SESSION] = $users[0]->getId();
-                    $_SESSION[MyCookie::MESSAGE_SESSION] = __('Success!', 'user');
+                    $_SESSION[MyCookie::MESSAGE_SESSION] = 'OK_LOGIN';
                 } else {
-                    $_SESSION[MyCookie::MESSAGE_SESSION] = __('Your username is deactivated. Please contact administration.', 'user');
+                    $_SESSION[MyCookie::MESSAGE_SESSION] = $_MyCookie->getTranslation('user', 'message.deactivated_login');
                 }
             }
         }
         header('location:' . $_SERVER['HTTP_REFERER']);
     }
 
-    public static function LoadSessionUser() {
+    public static function loadSessionUser()
+    {
         global $_User;
-        if (array_key_exists(MyCookie::USER_ID_SESSION, $_SESSION) & !empty($_SESSION[MyCookie::USER_ID_SESSION])) {
+        if (isset($_SESSION[MyCookie::USER_ID_SESSION]) &
+                !empty($_SESSION[MyCookie::USER_ID_SESSION])) {
             $_User = User::select('u')
                             ->where('u.id = :id')
                             ->setParameter('id', $_SESSION[MyCookie::USER_ID_SESSION])
@@ -220,14 +369,18 @@ class UserController {
         }
     }
 
-    public function Logout() {
-        global $_MyCookie;
+    public static function logout($redirect = true)
+    {
+        global $_BaseURL;
         unset($_SESSION[MyCookie::USER_ID_SESSION]);
         unset($_SESSION[MyCookie::MESSAGE_SESSION]);
-        header('location:' . $_MyCookie->getSite());
+        if ($redirect) {
+            header('location:' . $_BaseURL);
+        }
     }
 
-    public static function isAdministratorLoggedIn() {
+    public static function isAdministratorLoggedIn()
+    {
         if (UserController::isUserLoggedIn()) {
             global $_User;
             return ($_User->getAccountType()->getFlag() == 'ADMINISTRATOR');
@@ -235,49 +388,26 @@ class UserController {
         return false;
     }
 
-    public static function isUserLoggedIn() {
+    public static function isUserLoggedIn()
+    {
         return isset($_SESSION[MyCookie::USER_ID_SESSION]);
     }
 
-    public static function VerifyAccessLevel($accessLevel, $_ = null) {
-        global $_MyCookie;
+    public static function checkAccessLevel($accessLevel, $_ = null)
+    {
+        global $_BaseURL;
         global $_User;
         $accessLevel = func_get_args();
-        if (!in_array($_User->getAccountType()->getFlag(), $accessLevel))
-            header('location: ' . $_MyCookie->getSite() . 'administrator/');
+        if (!isset($_User) || !in_array($_User->getAccountType()->getFlag(), $accessLevel))
+            header('location: ' . $_BaseURL . 'administrator/');
     }
 
-    public static function ShowUserTableByType($accid) {
-        global $_MyCookie;
-        $data = User::select('u')->join('u.accountType', 'a')->where("a.id = ?1")->add('orderBy', 'u.name ASC, u.status DESC')
-                        ->setParameter(1, $accid)->getQuery()->execute();
-        $_MyCookie->loadView('user', 'Manage.table', $data);
-    }
-
-    public static function VerificarUsuario() {
-
-        $usuario = new TUsuario;
-
-        if (count($usuario->ListarTodosOnde("usuario = '{$_REQUEST['usuario']}'")) > 0)
-            echo '1';
-    }
-
-    public static function AlterarTipo() {
-
-        $_SESSION['TIPO_INDEX'] = $_REQUEST['tipo'];
-    }
-
-    public static function ResetarTipo() {
-        unset($_SESSION['TIPO_INDEX']);
-    }
-
-    public static function selectWithFlag($flag) {
+    public static function selectWithFlag($flag)
+    {
         global $_MyCookie;
         $users = User::select('u')->join('u.accountType', 'a')->where('a.flag = ?1')->orderBy('u.name')
                         ->setParameter(1, $flag)->getQuery()->getResult();
         $_MyCookie->loadView('user', 'Select', $users);
     }
-
 }
-
 ?>

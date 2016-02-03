@@ -30,12 +30,12 @@ class AccountTypeControl {
         return AccountType::select('a')->orderBy('a.name')->getQuery()->execute();
     }
 
-    public static function ShowSelection($userid = null, $accid = null) {
+    public static function showSelection($uId = null, $accId = null) {
         global $_MyCookie;
         global $_User;
         $accountTypes = AccountType::select('a')->orderBy('a.name')->getQuery()->execute();
-        $readonly = ($_User->getId() == $userid);
-        $_MyCookie->loadView('user/accountType', 'Select', array('accountTypes' => $accountTypes, 'readonly' => $readonly, 'accid' => $accid));
+        $readonly = ($_User->getId() == $uId);
+        $_MyCookie->loadView('user/accountType', 'Select', array('accountTypes' => $accountTypes, 'readonly' => $readonly, 'accid' => $accId));
     }
 
     public static function Gerenciar() {

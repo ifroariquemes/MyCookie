@@ -8,27 +8,18 @@ use lib\util\Object;
  * @Entity
  * @Table(name="user")
  */
-class User extends Object {
-
+class User extends Object
+{
     /** @Id @Column(type="integer") @GeneratedValue */
     private $id;
 
     /** @Column(type="string") */
     private $name;
 
-    /** @Column(type="string", nullable=true) */
-    private $middleName;
-
     /** @Column(type="string") */
-    private $lastName;
-
-    /** @Column(type="string", length=32) */
-    private $login;
-
-    /** @Column(type="string", length=32) */
     private $password;
 
-    /** @Column(type="string", nullable=true) */
+    /** @Column(type="string") */
     private $email;
 
     /** @Column(type="datetime", nullable=true) */
@@ -46,116 +37,115 @@ class User extends Object {
     /** @Column(type="string", nullable=true) */
     private $code;
 
-    function __construct() {
+    function __construct()
+    {
         $this->status = '1';
         $this->accountType = new accountType\AccountType;
     }
 
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function getMiddleName() {
-        return $this->middleName;
+    public function getFirstName()
+    {
+        return array_shift(explode(' ', $this->name));
     }
 
-    public function getLastName() {
-        return $this->lastName;
+    public function getLastName()
+    {
+        return end(explode(' ', $this->name));
     }
 
-    public function getLogin() {
-        return $this->login;
-    }
-
-    public function getPassword() {
+    public function getPassword()
+    {
         return $this->password;
     }
 
-    public function getEmail() {
+    public function getEmail()
+    {
         return $this->email;
     }
 
-    public function getLastLogin() {
+    public function getLastLogin()
+    {
         return $this->lastLogin;
     }
 
-    public function getAccountType() {
+    public function getAccountType()
+    {
         return $this->accountType;
     }
 
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
         return $this;
     }
 
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
 
-    public function setMiddleName($middleName) {
-        $this->middleName = $middleName;
+    public function setPassword($password)
+    {
+        $this->password = password_hash($password, PASSWORD_DEFAULT);
         return $this;
     }
 
-    public function setLastName($lastName) {
-        $this->lastName = $lastName;
-        return $this;
-    }
-
-    public function setLogin($login) {
-        $this->login = $login;
-        return $this;
-    }
-
-    public function setPassword($password) {
-        $this->password = md5($password);
-        return $this;
-    }
-
-    public function setEmail($email) {
+    public function setEmail($email)
+    {
         $this->email = $email;
         return $this;
     }
 
-    public function setLastLogin($lastLogin) {
+    public function setLastLogin($lastLogin)
+    {
         $this->lastLogin = $lastLogin;
         return $this;
     }
 
-    public function setAccountType($accountType) {
+    public function setAccountType($accountType)
+    {
         $this->accountType = $accountType;
         return $this;
     }
 
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
 
-    public function getCompleteName() {
-        return trim(sprintf('%s %s %s', $this->name, $this->middleName, $this->lastName));
+    public function getStatusStr()
+    {
+        global $_MyCookie;
+        return ($this->status) ?
+                $_MyCookie->getTranslation('mycookie', 'status.activated') :
+                $_MyCookie->getTranslation('mycookie', 'status.deactivated');
     }
 
-    public function getStatusStr() {
-        return ($this->status) ? 'ATIVADO' : 'DESATIVADO';
-    }
-
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
-
 }

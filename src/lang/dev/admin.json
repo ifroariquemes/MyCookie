@@ -1,0 +1,39 @@
+{
+    "page": {
+        "title": "administrative panel"
+    },
+    "header": {
+        "title": "administrative panel"
+    },
+    "footer": {
+      "institute": "Federal Institute of Rondônia"
+    },
+    "label" : {
+        "email": "E-mail",
+        "email_pla": "e-mail",        
+        "password": "Password",
+        "password_pla": "password",
+        "forgot": "Forgot your password?",
+        "noaccount": "You do not have an account?"
+    },
+    "button" : {
+        "signin": "Sign in",
+        "register": "Register",
+        "resend": "Resend confirmation link.",
+        "edit_profile": "Edit profile",
+        "signout": "Sign out",
+        "home": "Home"
+    },
+    "register": {
+        "title": "Register new account",
+        "button": "Register"
+    },
+    "resend": {
+        "title": "Resend confirmation link",
+        "spam": "If you yet don't received any e-mail with confirmation link, please check your spam folder.",
+        "button": "Resend"
+    },
+    "forgot": {
+        "button": "Reset my password"
+    }
+}

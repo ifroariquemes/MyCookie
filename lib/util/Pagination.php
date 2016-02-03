@@ -2,20 +2,23 @@
 
 namespace lib\util;
 
-class Pagination {
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
-    public static function paginate($objects, $rows = 50) {
-        $lastIndex = 0;
-        $lastPart = array();
-        $pages = array();
-        do {
-            $lastPart = array_slice($objects, $lastIndex * $rows, $rows);
-            if (!empty($lastPart)) {
-                array_push($pages, $lastPart);
-                $lastIndex++;
-            }
-        } while (count($lastPart) == $rows);
-        return $pages;
+class Pagination
+{
+
+    public static function paginate(QueryBuilder $query, $curPage = 1, $records = 25)
+    {
+        $paginator = new Paginator($query);
+        $paginator
+                ->getQuery()
+                ->setFirstResult($records * ($curPage - 1))
+                ->setMaxResults($records);
+        return $paginator;
     }
-
+    
+    public static function getPages(Paginator $data) {
+        return ceil($data->count() / $data->getQuery()->getMaxResults());
+    }
 }

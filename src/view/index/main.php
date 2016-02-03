@@ -1,8 +1,8 @@
 <div class="row">
     <div class="col-md-12">
         <div class="jumbotron">
-            <h1>Welcome to MyCookie! <small>:D</small></h1>
-            <p>a PHP Framework</p>
+            <h1><span data-i18n="index:header.title"></span> <small>:D</small></h1>
+            <p data-i18n="index:header.subtitle">a PHP Framework</p>
         </div>
     </div>
 </div>

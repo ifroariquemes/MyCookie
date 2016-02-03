@@ -14,9 +14,8 @@ use controller\user\UserController;
  */
 class MyCookie
 {
-
     const USER_ID_SESSION = 'MYCOOKIE_USER_SESSION';
-    const MESSAGE_SESSION = 'MYCOOKIE_MESSAGE_SESSION';    
+    const MESSAGE_SESSION = 'MYCOOKIE_MESSAGE_SESSION';
 
     /**
      * The module's namespace
@@ -94,9 +93,10 @@ class MyCookie
      * The singleton method
      * @return MyCookie
      */
-    public static function singleton()
+    public static function getInstance()
     {
         if (!isset(self::$instance)) {
+            session_start();
             $c = __CLASS__;
             self::$instance = new $c;
         }
@@ -104,17 +104,18 @@ class MyCookie
     }
 
     /**
-     * Build the rules for what execute based on URL
-     * @global util\Cache $_Cache     
+     * Build the rules for what execute based on URL      
      */
     public function __construct()
     {
-        $this->CheckCache();
         global $_Server;
-        $_Server = util\Server::singleton();
         global $_EntityManager;
+        $this->restoreCache();
+        $this->loadBaseURL();
+        $this->loadConfiguration();
+        $_Server = util\Server::getInstance();
         $_EntityManager = util\Database::EntityManager();
-        UserController::LoadSessionUser();
+        UserController::loadSessionUser();
         $this->setURLVariables();
         $this->setGateway();
         if ($this->getURLVariablesLength() > 0) {
@@ -126,13 +127,14 @@ class MyCookie
             $this->namespace = sprintf('controller\\%s', $this->module);
             $this->setSubModuleCustom();
         } else {
-            $this->DefaultAction();
+            $this->defaultAction();
         }
     }
 
     private function setSubModuleCustom()
     {
-        if (array_key_exists(1, $this->URLVariables) && $this->URLVariables[1] != $this->action) {
+        if (array_key_exists(1, $this->URLVariables) &&
+                $this->URLVariables[1] != $this->action) {
             $this->submodule = $this->URLVariables[1];
         }
         if (!empty($this->submodule)) {
@@ -143,8 +145,9 @@ class MyCookie
     private function setActionCustom()
     {
         $moduleConfig = $this->getModuleConfiguration($this->module);
-        $this->VerifyModuleConfigurationIntegrity($moduleConfig);
-        if ($this->getURLVariablesLength() === 1 || $this->module == 'administrador') {
+        $this->checkModuleConfigurationIntegrity($moduleConfig);
+        if ($this->getURLVariablesLength() === 1 ||
+                $this->module == 'administrador') {
             $this->action = strval($moduleConfig->getHome()->getAction());
         } else {
             $this->action = end($this->URLVariables);
@@ -153,7 +156,8 @@ class MyCookie
 
     private function setModuleCustom()
     {
-        if ($this->getURLVariablesLength() > 1 && $this->URLVariables[0] == 'administrator') {
+        if ($this->getURLVariablesLength() > 1 &&
+                $this->URLVariables[0] == 'administrator') {
             $this->module = $this->URLVariables[1];
         } else {
             $this->module = $this->URLVariables[0];
@@ -168,11 +172,13 @@ class MyCookie
     private function setURLVariables()
     {
         global $_Server;
-        $remove = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);        
-        if ($_Server->getOS() === util\Server::OS_WINDOWS) {
-            $this->URLVariables = explode('/', str_replace($remove, '', $_SERVER['REQUEST_URI']));
+        $remove = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
+        if (isset($_SERVER['REDIRECT_URL'])) {
+            $this->URLVariables = explode('/'
+                    , str_replace($remove, '', $_SERVER['REDIRECT_URL']));
         } else {
-            $this->URLVariables = explode('/', str_replace($remove, '', $_SERVER['REDIRECT_URL']));
+            $this->URLVariables = explode('/'
+                    , str_replace($remove, '', $_SERVER['REQUEST_URI']));
         }
         if ($this->URLVariables[0] == '') {
             array_shift($this->URLVariables);
@@ -184,43 +190,29 @@ class MyCookie
 
     private function setGateway()
     {
-        if ($this->getURLVariablesLength() > 0 && $this->URLVariables[0] == 'administrator') {
+        if ($this->getURLVariablesLength() > 0 &&
+                $this->URLVariables[0] == 'administrator') {
             $this->gateway = 'administrator';
         } else {
             $this->gateway = 'index';
         }
     }
 
-    private function CheckCache()
+    private function restoreCache()
     {
         global $_Cache;
         $_Cache = util\Cache::getInstance();
         $_Cache->getCache();
     }
 
-    private function DefaultAction()
+    private function defaultAction()
     {
-        $MyCookieConfiguration = $this->getMyCookieConfiguration();
-        $this->gateway = $MyCookieConfiguration->home->gateway;
-        $this->module = $MyCookieConfiguration->home->module;
-        $this->action = $MyCookieConfiguration->home->action;
+        global $_Config;
+        $this->gateway = $_Config->home->gateway;
+        $this->module = $_Config->home->module;
+        $this->action = $_Config->home->action;
         $this->namespace = "modules\\{$this->module}";
-        $this->controlClass = $this->namespace . '\\' . $MyCookieConfiguration->home->control;
-    }
-
-    public function getSOServidor()
-    {
-        if (empty($this->serverOS)) {
-            $soServidor = $_SERVER['SERVER_SIGNATURE'];
-            if (strpos($soServidor, 'Unix') !== false) {
-                $this->serverOS = 'Linux';
-            } else if (strpos($soServidor, 'Win32') !== false) {
-                $this->serverOS = 'Windows';
-            } else {
-                $this->serverOS = 'Mac';
-            }
-        }
-        return $this->serverOS;
+        $this->controlClass = $this->namespace . '\\' . $_Config->home->control;
     }
 
     public function getGateway()
@@ -250,42 +242,43 @@ class MyCookie
     {
         if (is_null($module)) {
             if (empty($this->controlClass)) {
-                $moduleConfiguration = $this->getModuleConfiguration($this->module);
-                $this->VerifyModuleConfigurationIntegrity($moduleConfiguration);
-                foreach ($moduleConfiguration->getControllers() as $controller) {
-                    if ($this->submodule == $controller->getSubmodule()) {
-                        return $this->controlClass = "$this->namespace\\{$controller->getName()}";
+                $mc = $this->getModuleConfiguration($this->module);
+                foreach ($mc->getControllers() as $c) {
+                    if ($this->submodule == $c->getSubmodule()) {
+                        return $this->controlClass = "$this->namespace\\"
+                                . "{$c->getName()}";
                     }
                 }
             }
             return $this->controlClass;
         } else {
-            $moduleConfiguration = $this->getModuleConfiguration($module);
-            $this->VerifyModuleConfigurationIntegrity($moduleConfiguration);
+            $mc = $this->getModuleConfiguration($module);
+            $this->checkModuleConfigurationIntegrity($mc);
             $namespace = "controller\\$module";
-            foreach ($moduleConfiguration->getControllers() as $controller) {
-                if ($submodule == $controller->getSubmodule()) {
-                    return (empty($submodule)) ? "$namespace\\{$controller->getName()}" : "$namespace\\$submodule\\{$controller->getName()})";
+            foreach ($mc->getControllers() as $c) {
+                if ($submodule == $c->getSubmodule()) {
+                    return (empty($submodule)) ?
+                            "$namespace\\{$c->getName()}" :
+                            "$namespace\\$submodule\\{$c->getName()})";
                 }
             }
         }
-
-        //throw new \Exception("There is something wrong with module $module configuration.");
     }
 
-    public function VerifyModuleConfigurationIntegrity($moduleConfiguration)
+    public function checkModuleConfigurationIntegrity($mc)
     {
-        if (is_null($moduleConfiguration)) {
-            throw new \Exception("There is something wrong with $this->module module configuration.");
+        if (is_null($mc)) {
+            throw new
+            \Exception("There is something wrong with $this->module module "
+            . "configuration.");
         }
     }
 
-    public function getMyCookieConfiguration()
+    private function loadConfiguration()
     {
-        if (empty($this->configuration)) {
-            $this->configuration = json_decode(file_get_contents('config.json'));
-        }
-        return $this->configuration;
+        global $_Config;
+        $_Config = json_decode(file_get_contents('config.json'));
+        return $_Config;
     }
 
     /**
@@ -296,8 +289,11 @@ class MyCookie
     public function getModuleConfiguration($module)
     {
         $module = strtolower($module);
-        $config = str_replace(array('<?php', '?>'), '', file_get_contents("src/config/$module.php"));
-        return eval($config);
+        $config = str_replace(array('<?php', '?>'), ''
+                , file_get_contents("src/config/$module.php"));
+        $moduleConfiguration = eval($config);
+        $this->checkModuleConfigurationIntegrity($moduleConfiguration);
+        return $moduleConfiguration;
     }
 
     /**
@@ -315,7 +311,8 @@ class MyCookie
     }
 
     /**
-     * Retorna o modulo auxiliar principal (o ultimo de uma serie de submodulos, responsavel pela acao) executado pelo MyCookie
+     * Retorna o modulo auxiliar principal (o ultimo de uma serie de submodulos, 
+     * responsavel pela acao) executado pelo MyCookie
      * @return string
      */
     public function getAuxiliarModule()
@@ -333,34 +330,40 @@ class MyCookie
     }
 
     /**
-     * Retorna o nome do modulo principal executado pelo MyCookie segundo o arquivo de configuracao XML do modulo
+     * Retorna o nome do modulo principal executado pelo MyCookie segundo o 
+     * arquivo de configuracao XML do modulo
      * @return string
      */
     public function getModuleName()
     {
-        $moduleConfiguration = $this->getModuleConfiguration($this->module);
-        return $moduleConfiguration->name;
+        $mc = $this->getModuleConfiguration($this->module);
+        return $mc->name;
     }
 
     public function getAuxiliarModuleName()
     {
-        $moduleConfiguration = $this->getModuleConfiguration($this->getAuxiliarModule());
-        return $moduleConfiguration->name;
+        $mc = $this->getModuleConfiguration($this->getAuxiliarModule());
+        return $mc->name;
     }
 
     /**
      * The main URL of website (w/o variables and modules)
      * @return string
      */
-    public function getSite()
+    private function loadBaseURL()
     {
-        if (empty($this->site)) {
-            $requestScheme = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
-            $httpHost = $_SERVER['HTTP_HOST'];
-            $scriptName = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
-            $this->site = sprintf('%s://%s%s', $requestScheme, $httpHost, $scriptName);
+        global $_BaseURL;
+        if ((!empty($_SERVER['HTTPS']) &&
+                $_SERVER['HTTPS'] !== 'off') ||
+                $_SERVER['SERVER_PORT'] == 443) {
+            $protocol = 'https';
+        } else {
+            $protocol = 'http';
         }
-        return $this->site;
+        $host = $_SERVER['HTTP_HOST'];
+        $scriptName = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
+        $_BaseURL = sprintf('%s://%s%s', $protocol, $host, $scriptName);
+        return $_BaseURL;
     }
 
     public function getSubmodule()
@@ -386,8 +389,9 @@ class MyCookie
      */
     public function image($src, $class = '', $title = '', $alt = '')
     {
+        global $_BaseURL;
         $image = '<img class="%s" title="%s" alt="%s" src="%s%s">';
-        echo sprintf($image, $class, $title, $alt, $this->getSite(), $src);
+        echo sprintf($image, $class, $title, $alt, $_BaseURL, $src);
     }
 
     /**
@@ -399,14 +403,16 @@ class MyCookie
      */
     public function link($text, $alt, $href)
     {
+        global $_BaseURL;
         $link = '<a href="%s%s" alt="%s">%s</a>';
-        echo sprintf($link, $this->getSite(), $href, $alt, $text);
+        echo sprintf($link, $_BaseURL, $href, $alt, $text);
     }
 
     public function mountLink($module, $_ = null)
     {
+        global $_BaseURL;
         $dir = func_get_args();
-        $link = $this->getSite();
+        $link = $_BaseURL;
         foreach ($dir as $part) {
             $link.= "$part/";
         }
@@ -462,6 +468,7 @@ class MyCookie
 
     public function loadView($module, $view, $data = null, $return = false)
     {
+        global $_MyCookie;
         if ($return) {
             ob_start();
             include("src/view/$module/$view.php");
@@ -473,26 +480,37 @@ class MyCookie
         }
     }
 
-    public function LoadTemplate($module, $template, $view)
+    public function loadTemplate($module, $template, $view)
     {
         include("src/view/$module/$template.php");
     }
 
     public function useScript($relativePath)
     {
+        global $_BaseURL;
         $absolutePath = '<script type="text/javascript" src="%s%s"></script>';
-        echo sprintf($absolutePath, $this->getSite(), $relativePath);
+        echo sprintf($absolutePath, $_BaseURL, $relativePath);
     }
 
     public function useStyle($relativePath)
     {
+        global $_BaseURL;
         $absolutePath = '<link rel="stylesheet" type="text/css" href="%s%s" />';
-        echo sprintf($absolutePath, $this->getSite(), $relativePath);
+        echo sprintf($absolutePath, $_BaseURL, $relativePath);
     }
 
     public function CSSBundle()
     {
-        $this->useStyle('components/bundle.css');
+        global $_Config;
+        if ($_Config->build->production) {
+            $this->useStyle('components/bundle.css');
+        } else {
+            $bCtrl = new \controller\build\BuildController;
+            $bCtrl->createBuildCSS(true);
+            foreach ($bCtrl->getCSSFiles() as $css) {
+                $this->useStyle($css);
+            }
+        }
     }
 
     public function RequireJS()
@@ -502,17 +520,38 @@ class MyCookie
 
     public function JSBundle()
     {
-        include_once('components/mycookie.js.php');
-        $this->useScript('components/bundle.js');
+        global $_Config;
+        if ($_Config->build->production) {
+            $this->useScript('components/bundle.js');
+        } else {
+            $bCtrl = new \controller\build\BuildController;
+            $bCtrl->createBuildJS(true);
+            foreach ($bCtrl->getJSFiles() as $js) {
+                $this->useScript("{$js}.js");
+            }
+        }
     }
 
     public function goBackTo($module, $_ = null)
     {
+        global $_BaseURL;
         global $_MyCookieGoBack;
-        $_MyCookieGoBack = $this->getSite();
+        $_MyCookieGoBack = $_BaseURL;
         foreach (func_get_args() as $href) {
             $_MyCookieGoBack .= "$href/";
         }
     }
 
+    public function getUserLanguage()
+    {
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            $lc = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+        }
+        return $lc;
+    }
+
+    public function getTranslation($module, $key)
+    {
+        return util\Translation::getInstance()->getTranslation($module, $key);
+    }
 }

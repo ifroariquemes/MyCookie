@@ -1,0 +1,69 @@
+{
+    "label" : {
+        "name": "Name",
+        "mid_name": "Middle name",
+        "last_name": "Last name",        
+        "email": "E-mail",
+        "account_type": "Account type",
+        "select_acc": "Select an account type...",
+        "username": "Username",        
+        "password": "Password",
+        "new_password": "New password",
+        "repeat_new_pwd": "Repeat new password",
+        "repeat_pwd": "Repeat password",
+        "add_user": "Add user",
+        "edit_user": "Edit user",
+        "email_details": "E-mail account details to new user?"
+    },
+    "message" : {
+        "change": "Want to change password?",
+        "deactivated": "This user is deactivated",                
+        "pwd_minimum": "minimum of 6 characters",
+        "empty": "There is no user with this account type",
+        "incorrect_pwd": "Invalid password",
+        "not_match_pwd": "Passwords do not match",
+        "user_deactivated": "User deactivated successfully!",
+        "user_reactivated": "User reactivated successfully!",
+        "pwd_chagend": "Password changed successfully!",
+        "user_deleted": "User deleted successfully!",
+        "user_saved": "User saved successfully!",
+        "question_delete": "Do you really want to delete this user?",
+        "saving": "Saving user data...",
+        "deactivated_login": "Account not confirmed yet. Please check your e-mail or request again confirmation link below.",
+        "bad_login": "Invalid e-mail/password"
+    },
+    "button": {
+        "change_pwd": "Change password",
+        "deactivate": "Deactivate user",        
+        "reactivate": "Reactivate user?",
+        "delete": "Delete user"
+    },
+    "email": {
+        "new_subject": "Your new account at",        
+        "check": "We've sent a confirmation link, please check your e-mail to use this service.",
+        "exists": "This e-mail already exists.",
+        "no_account": "There is no account registred with this e-mail.",
+        "key_not_recog": "Key not recognised.",
+        "hello": "Hello",
+        "automatic": "This is an automatic e-mail. Not the answer",
+        "public_1": "This e-mail was sent because we received a registration request in our system",
+        "public_2": "To confirm your registration, please click the link below or copy and paste it into your browser address bar",
+        "public_3": "If you did not request registration in our system, please contact us at",
+        "public_4": "and disregard this e-mail",
+        "internal_1": "This e-mail was sent because you were registred in our system by administration",
+        "internal_2": "Your crendentials are",
+        "internal_3": "The system is accessible at",
+        "internal_4": "Please keep this e-mail for future checking",
+        "forgot_subject": "Reset your password at",
+        "check_forgot": "We've sent instructions to reset your password, please check your e-mail.",
+        "forgot_1": "This e-mail was sent because we received a reset password request in our system",
+        "forgot_2": "Please click the link below to start reset proccess or copy and paste it into your browser address bar",
+        "forgot_3": "If you did not request password reset, please contact us at"        
+    },
+    "confirmed": {
+        "title": "User confirmed!",
+        "line_1": "Congratulations! Now your are ready to use our services.",
+        "line_2": "Please, proceed with login to continue.",
+        "button": "Go to login"
+    }
+}

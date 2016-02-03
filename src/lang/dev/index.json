@@ -1,0 +1,9 @@
+{
+    "site" : {
+        "title": "MyCookie - Starter Page"
+    },
+    "header": {
+        "title": "Welcome to MyCookie!",
+        "subtitle": "a PHP Framework"
+    }
+}

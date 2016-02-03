@@ -4,40 +4,42 @@ namespace model\administrator\menu;
 
 use lib\util\module\Module;
 
-class Menu {
-
+class Menu
+{
     private $name;
     private $directory;
     private $icon;
     private $color;
 
-    public function __construct($directory, Module $moduleConfig) {
+    public function __construct($directory, Module $moduleConfig)
+    {
         $this->name = $moduleConfig->getName();
         $this->directory = $directory;
         $this->icon = $moduleConfig->getTile()->getIcon();
         $this->color = $moduleConfig->getTile()->getColor();
         if (empty($this->color)) {
-            $this->color = $moduleConfig->getTile()->getAllowedColors()[rand(1, 29)];
+            $r = rand(1, 29);
+            $this->color = $moduleConfig->getTile()->getAllowedColors()[$r];
         }
     }
 
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function getDirectory() {
+    public function getDirectory()
+    {
         return $this->directory;
     }
 
-    public function getIcon() {
+    public function getIcon()
+    {
         return $this->icon;
     }
 
-    public function getColor() {
-
+    public function getColor()
+    {
         return $this->color;
     }
-
 }
-
-?>

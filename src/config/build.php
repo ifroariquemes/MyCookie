@@ -13,6 +13,6 @@ return module\Module::createInstance()
                 ->setLastReleaseDate('2014-04-21')
                 ->setHome(module\Home::createInstance()
                         ->setControl('BuildController')
-                        ->setAction('Build'))
+                        ->setAction('build'))
                 ->addController(module\Controller::createInstance()
                         ->setName('BuildController'));

@@ -1,16 +1,16 @@
 {
     "name": "MyCookie",
-    "lang": "en_US",
+    "lang": "user",    
     "database": {
         "driver": "mysql",
         "user": "root",
         "password": "",
-        "dbname": "foo"
+        "dbname": "mercurio"
     },
     "build": {
+        "production": false,
         "password": "1234",
-        "custom_js": {
-            "jquery": "vendor/sheillendra/metro-bootstrap/docs/jquery-1.8.0.js",
+        "custom_js": {            
             "bootstrap": "vendor/sheillendra/metro-bootstrap/docs/bootstrap.js",
             "application": "vendor/sheillendra/metro-bootstrap/docs/application.js"
         },
@@ -27,10 +27,12 @@
     },
     "allowPublicSignup": true,
     "mail": {
-        "host": "mail.host.com",
-        "username": "mailuser@host.com",
-        "password": "mailpassword",
+        "host": "smtp.gmail.com",        
+        "email": "natanaelsimoes@gmail.com",
+        "username": "natanaelsimoes@gmail.com",
+        "password": "gm41lP4ssw0rd",
         "port": 465,
-        "security": "ssl"
+        "security": "ssl",
+        "reply_to": "mailuser@host.com"
     }
 }

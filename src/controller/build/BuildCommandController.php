@@ -8,9 +8,9 @@ class BuildCommandController
     public static function createJSBundle()
     {
         $check = 0;
-        system(sprintf("node %s -o %s optimize=none", BuildFileController::RJSFile, BuildFileController::BuildJSFile), $check);
+        system(sprintf("node %s -o %s", BuildFileController::RJSFile, BuildFileController::BuildJSFile), $check);
         if ($check !== 0) {
-            system(sprintf("nodejs %s -o %s optimize=none", BuildFileController::RJSFile, BuildFileController::BuildJSFile), $check);
+            system(sprintf("nodejs %s -o %s", BuildFileController::RJSFile, BuildFileController::BuildJSFile), $check);
             if ($check !== 0) {
                 global $_MyCookie;
                 $_MyCookie->loadView('build', 'node-run');
@@ -79,7 +79,7 @@ class BuildCommandController
     public static function recreateDatabase()
     {
         global $_Server;
-        if ($_Server->getOS() === Server::OS_WINDOWS) {
+        if ($_Server->getOS() === \lib\util\Server::OS_WINDOWS) {
             system('"vendor/bin/doctrine.bat" orm:schema-tool:drop --force');
             system('"vendor/bin/doctrine.bat" orm:schema-tool:create');
         } else {

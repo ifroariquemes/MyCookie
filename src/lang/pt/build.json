@@ -1,0 +1,29 @@
+{
+    "title": "Construindo aplicação (JS/CSS)",
+    "header": {
+        "title": "Construindo aplicação",
+        "description": "Enpacota todos JS/CSS da aplicação e atualiza o banco de dados",
+        "warning": "Obs.: Isto pode levar algum tempo dependendo do tamanho dos arquivos"
+    },
+    "step": {
+        "one": "1 - Configurando pacote JS",
+        "two": "2 - Configurando pacote CSS",
+        "three": "3 - Construindo pacote JS",
+        "four": "4 - Contruindo pacote CSS",
+        "five": "5 - Atualizando banco de dados",
+        "six": "6 - Limpando cache",
+        "done": "Pronto!"
+    },
+    "output": {
+        "js": "Saída JS",
+        "css": "Saída CSS",
+        "orm": "Saída ORM"
+    },
+    "message": {
+        "password": "Entre com a senha de construção:",
+        "bad_password": "A senha não confere",
+        "recreate": "Você realmente deseja recriar o banco de dados? (Isto vai apagar TUDO!)",
+        "recreated": "Seu banco de dados foi recriado.",
+        "start": "Ir para o início."
+    }
+}

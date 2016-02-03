@@ -1,0 +1,39 @@
+{
+    "page": {
+        "title": "painel administrativo"
+    },
+    "header": {
+        "title": "painel administrativo"
+    },
+    "footer": {
+        "institute": "Instituto Federal de Rondônia"
+    },
+    "label": {
+        "email": "E-mail",
+        "email_pla": "e-mail",
+        "password": "Senha",
+        "password_pla": "senha",
+        "forgot": "Esqueceu sua senha?",
+        "noaccount": "Não tem uma conta ainda?"
+    },
+    "button": {
+        "signin": "Entrar",
+        "register": "Registrar nova conta",
+        "resend": "Reenviar link de confirmação.",
+        "edit_profile": "Editar perfil",
+        "signout": "Sair",
+        "home": "Início"
+    },
+    "register": {
+        "title": "Registrar nova conta",
+        "button": "Registrar"
+    },
+    "resend": {
+        "title": "Reenviar link de confirmação",
+        "spam": "Se você ainda não recebeu e-mail com o link de confirmação, por favor, verifique sua caixa de spam.",
+        "button": "Reenviar"
+    },
+    "forgot": {
+        "button": "Trocar minha senha"
+    }
+}
